@@ -1,0 +1,271 @@
+/* ============================================
+   Stenopos Documentation — Custom Theme
+   Stenopos palette: night, surface, stone, gold, crimson
+   #0E0D0B  #1A1814  #A89F8C  #C9A24A  #E5606A
+   ============================================ */
+
+:root {
+  --sten-surface: #1A1814;
+  --sten-surface-2: #24211B;
+  --sten-stone: #A89F8C;
+  --sten-gold: #C9A24A;
+  --sten-crimson: #E5606A;
+  --sten-crimson-dim: #B8323C;
+  --sten-glow: rgba(201, 162, 74, 0.08);
+  --sten-border: #3A342A;
+  --md-primary-fg-color: var(--sten-surface);
+  --md-primary-fg-color--light: var(--sten-surface-2);
+  --md-primary-fg-color--dark: #0E0D0B;
+  --md-accent-fg-color: var(--sten-crimson);
+}
+
+/* ---------- Dark scheme ---------- */
+[data-md-color-scheme="slate"] {
+  --md-default-bg-color: #0E0D0B;
+  --md-default-fg-color: #EDE6D6;
+  --md-default-fg-color--light: var(--sten-stone);
+  --md-accent-fg-color: var(--sten-crimson);
+  --md-code-bg-color: var(--sten-surface);
+  --md-typeset-a-color: var(--sten-gold);
+  --sten-border: #3A342A;
+}
+
+/* ---------- Light scheme ---------- */
+[data-md-color-scheme="default"] {
+  --md-accent-fg-color: #A8262F;
+  --md-typeset-a-color: #8A6A1E;
+  --md-code-bg-color: #F6F1E6;
+  --sten-border: #DDD3C0;
+}
+
+/* ---------- Header & tabs ---------- */
+.md-header {
+  background-color: var(--sten-surface);
+  border-bottom: 1px solid var(--sten-surface-2);
+}
+
+.md-tabs {
+  background-color: #0E0D0B;
+  border-bottom: 1px solid var(--sten-surface-2);
+}
+
+.md-tabs__link--active,
+.md-tabs__link:hover {
+  color: var(--sten-gold);
+}
+
+/* ---------- Links ---------- */
+.md-typeset a {
+  color: var(--md-typeset-a-color);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.md-typeset a:hover {
+  color: var(--sten-crimson);
+  text-decoration: underline;
+}
+
+/* ---------- Navigation ---------- */
+.md-nav__link--active {
+  color: var(--sten-crimson) !important;
+  font-weight: 600;
+}
+
+/* ---------- Code blocks ---------- */
+.md-typeset code {
+  border: 1px solid var(--sten-border);
+  border-radius: 4px;
+  font-size: 0.82em;
+  padding: 0.15em 0.4em;
+}
+
+.md-typeset pre {
+  border: 1px solid var(--sten-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.md-typeset pre > code {
+  border: none;
+  border-radius: 0;
+  font-size: 0.85em;
+  padding: 0;
+}
+
+[data-md-color-scheme="slate"] .md-typeset code {
+  background-color: var(--sten-surface);
+}
+
+[data-md-color-scheme="slate"] .md-typeset pre {
+  background-color: var(--sten-surface);
+}
+
+/* ---------- Admonitions ---------- */
+.md-typeset .admonition,
+.md-typeset details {
+  border-radius: 6px;
+  border-left-width: 4px;
+}
+
+/* ---------- Tables ---------- */
+.md-typeset table:not([class]) {
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--sten-border);
+}
+
+.md-typeset table:not([class]) th {
+  background-color: rgba(229, 96, 106, 0.1);
+  font-weight: 600;
+}
+
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) th {
+  background-color: rgba(229, 96, 106, 0.08);
+}
+
+/* ---------- Home page hero ---------- */
+.sten-hero {
+  text-align: center;
+  padding: 2rem 0 1rem;
+}
+
+.sten-hero__logo {
+  width: 160px;
+  height: auto;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 4px 24px rgba(229, 96, 106, 0.3));
+}
+
+.sten-hero h1 {
+  font-size: 2.8rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.3rem;
+  color: var(--sten-gold);
+}
+
+.sten-hero .sten-tagline {
+  font-size: 1.15rem;
+  color: var(--sten-stone);
+  margin-bottom: 2rem;
+  font-weight: 400;
+}
+
+.sten-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.2rem;
+  margin: 2rem 0;
+}
+
+.sten-feature {
+  padding: 1.2rem;
+  border: 1px solid var(--sten-border);
+  border-radius: 8px;
+  background: var(--sten-glow);
+  transition: border-color 0.2s ease;
+}
+
+.sten-feature:hover {
+  border-color: var(--sten-crimson);
+}
+
+.sten-feature h3 {
+  margin-top: 0;
+  font-size: 1rem;
+  color: var(--sten-crimson);
+}
+
+.sten-feature p {
+  margin-bottom: 0;
+  font-size: 0.9rem;
+  color: var(--md-default-fg-color--light);
+}
+
+/* ---------- Footer ---------- */
+.md-footer {
+  border-top: 1px solid var(--sten-border);
+}
+
+/* ---------- Search ---------- */
+.md-search__input {
+  border-radius: 6px;
+}
+
+/* ---------- Scrollbar (dark mode) ---------- */
+[data-md-color-scheme="slate"] ::-webkit-scrollbar {
+  width: 8px;
+}
+
+[data-md-color-scheme="slate"] ::-webkit-scrollbar-track {
+  background: #0E0D0B;
+}
+
+[data-md-color-scheme="slate"] ::-webkit-scrollbar-thumb {
+  background: var(--sten-surface-2);
+  border-radius: 4px;
+}
+
+[data-md-color-scheme="slate"] ::-webkit-scrollbar-thumb:hover {
+  background: #3A342A;
+}
+
+/* ---------- Inline TOC (top of page) ---------- */
+.md-sidebar--secondary,
+.md-sidebar[data-md-type="toc"] {
+  display: none !important;
+}
+
+.sten-toc {
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--sten-border);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  background: var(--sten-glow);
+}
+
+.sten-toc__title {
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sten-crimson);
+  margin: 0 0 0.5rem 0;
+}
+
+.sten-toc__list {
+  margin: 0;
+  padding: 0 0 0 1.2rem;
+}
+
+.sten-toc__list li {
+  font-size: 0.85rem;
+  line-height: 1.8;
+}
+
+.sten-toc__list ul {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.sten-toc__list a {
+  color: var(--sten-stone);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.sten-toc__list a:hover {
+  color: var(--sten-gold);
+}
+
+/* ---------- Responsive ---------- */
+@media screen and (max-width: 768px) {
+  .sten-hero h1 {
+    font-size: 2rem;
+  }
+
+  .sten-features {
+    grid-template-columns: 1fr;
+  }
+}
