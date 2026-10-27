@@ -3381,7 +3381,7 @@
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
 <p>Variables are declared with the type before the name — C style, not Rust style.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>int32 x = 42
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>int64 big = 1_000_000
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>int64 big = 1000000
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>float64 pi = 3.14159
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>str greeting = "hello"
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>bool flag = true
@@ -3435,8 +3435,9 @@ one today is a compile error.</p>
 <p>Unsigned types are unsigned everywhere: comparison, <code>/</code>, <code>%</code> and <code>&gt;&gt;</code> treat the
 top bit as part of the value. An unsigned value can't be negated, and going
 below zero is an overflow.</p>
-<p>Integer literals can be written in decimal, hex or binary, with <code>_</code> to group
-digits. A literal takes the type of the integer it is used with:</p>
+<p>Integer literals can be written in decimal, hex (<code>0x</code>) or binary (<code>0b</code>), and
+hex and binary may use <code>_</code> to group digits (<code>_</code> in decimal literals is coming in
+1.0). A literal takes the type of the integer it is used with:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>func main() -&gt; int32 {
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    uint64 mask = 0xffff_ffff_0000_0000
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    uint32 flags = 0b1010
@@ -3478,10 +3479,12 @@ indices. For those, ask for wrapping explicitly with <code>wrapping_add</code>,
 </code></pre></div>
 <p>The default is safe; wrapping is opt-in and visible at the call site.</p>
 <h2 id="arrays">Arrays<a class="headerlink" href="#arrays" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>int64 numbers[5] = [1, 2, 3, 4, 5]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>int64[5] numbers = [1, 2, 3, 4, 5]
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>int64 first = numbers[0]
 </code></pre></div>
-<p>Array access is bounds-checked at compile time where possible.</p>
+<p>Every index is bounds-checked: an index out of range stops the program instead
+of reading or writing memory it shouldn't. The C-style declaration
+<code>int64 numbers[5] = ...</code> is coming in 1.0.</p>
 <h2 id="nullable-types">Nullable types<a class="headerlink" href="#nullable-types" title="Permanent link">&para;</a></h2>
 <p>Any type <code>T</code> has a nullable form <code>T?</code> that holds either a value or <code>null</code>. The
 compiler will not let you use a <code>T?</code> as a <code>T</code> until you have ruled out null.</p>
@@ -3508,6 +3511,10 @@ to the non-nullable type for the rest of that scope:</p>
 <p>There is no null-pointer dereference: raw pointers are nullable with the same
 <code>ptr[T]?</code> syntax and must be checked before use inside <code>unsafe</code>.</p>
 <h2 id="type-aliases">Type aliases<a class="headerlink" href="#type-aliases" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Coming in 1.0</p>
+<p>Not implemented yet.</p>
+</div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>type Meters = float64
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>type Seconds = float64
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>

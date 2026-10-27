@@ -1832,10 +1832,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#classes" class="md-nav__link">
+  <a href="#generic-structs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Classes
+        Generic structs
       
     </span>
   </a>
@@ -1843,10 +1843,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#abstract-classes" class="md-nav__link">
+  <a href="#classes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Abstract classes
+        Classes
       
     </span>
   </a>
@@ -1876,10 +1876,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#adding-traits-to-existing-types" class="md-nav__link">
+  <a href="#coming-in-10" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Adding traits to existing types
+        Coming in 1.0
       
     </span>
   </a>
@@ -3183,10 +3183,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#classes" class="md-nav__link">
+  <a href="#generic-structs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Classes
+        Generic structs
       
     </span>
   </a>
@@ -3194,10 +3194,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#abstract-classes" class="md-nav__link">
+  <a href="#classes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Abstract classes
+        Classes
       
     </span>
   </a>
@@ -3227,10 +3227,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#adding-traits-to-existing-types" class="md-nav__link">
+  <a href="#coming-in-10" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Adding traits to existing types
+        Coming in 1.0
       
     </span>
   </a>
@@ -3278,11 +3278,11 @@
         
       </li>
       
-      <li><a href="#classes">Classes</a>
+      <li><a href="#generic-structs">Generic structs</a>
         
       </li>
       
-      <li><a href="#abstract-classes">Abstract classes</a>
+      <li><a href="#classes">Classes</a>
         
       </li>
       
@@ -3294,7 +3294,7 @@
         
       </li>
       
-      <li><a href="#adding-traits-to-existing-types">Adding traits to existing types</a>
+      <li><a href="#coming-in-10">Coming in 1.0</a>
         
       </li>
       
@@ -3311,7 +3311,7 @@
 
 <h1 id="structs-and-classes">Structs and Classes<a class="headerlink" href="#structs-and-classes" title="Permanent link">&para;</a></h1>
 <h2 id="structs">Structs<a class="headerlink" href="#structs" title="Permanent link">&para;</a></h2>
-<p>Plain data containers that live on the stack:</p>
+<p>Plain data containers:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>struct Point {
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    float64 x
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    float64 y
@@ -3320,83 +3320,113 @@
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>Point p = Point { x: 1.0, y: 2.0 }
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>println("{p.x}, {p.y}")
 </code></pre></div>
+<p>Structs and classes can have methods, which reach the value as <code>this</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>struct Point {
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    float64 x
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    float64 y
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    pub func norm2() -&gt; float64 {
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        return this.x * this.x + this.y * this.y
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    }
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>}
+</code></pre></div>
+<h2 id="generic-structs">Generic structs<a class="headerlink" href="#generic-structs" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>struct Pair[A, B] {
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    A first
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    B second
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>}
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>Pair[int32, str] p = Pair { first: 7, second: "seven" }
+</code></pre></div>
 <h2 id="classes">Classes<a class="headerlink" href="#classes" title="Permanent link">&para;</a></h2>
-<p>Classes support inheritance and live on the heap (managed by NOVA):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>class Animal {
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    pub str name
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    virtual func speak() -&gt; void {
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        println("...")
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    }
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>}
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>class Dog : Animal {
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    override func speak() -&gt; void {
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        println("Woof! I'm {this.name}")
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    }
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>}
-</code></pre></div>
-<p>Use <code>parent</code> to call the parent class method:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>class Puppy : Dog {
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    override func speak() -&gt; void {
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>        parent.speak()
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>        println("*wags tail*")
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    }
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>}
-</code></pre></div>
-<h2 id="abstract-classes">Abstract classes<a class="headerlink" href="#abstract-classes" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>class Shape {
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    abstract func area() -&gt; float64
+<p>Classes add inheritance. Like structs, they are <strong>values</strong>: a class instance
+lives where its variable lives, with no hidden heap allocation and no garbage
+collector.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>class Animal {
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    pub str name
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    virtual func describe() -&gt; str {
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        return "a shape"
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    virtual func speak() -&gt; void {
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        println("...")
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    }
 <a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>}
 <a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>class Circle : Shape {
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    pub float64 radius
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    override func area() -&gt; float64 {
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>        return 3.14159 * this.radius * this.radius
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    }
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>}
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>class Dog : Animal {
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    override func speak() -&gt; void {
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        println("Woof! I'm {this.name}")
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    }
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>}
+</code></pre></div>
+<p>Use <code>parent</code> to call the parent class method:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>class Puppy : Dog {
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    override func speak() -&gt; void {
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>        parent.speak()
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>        println("*wags tail*")
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    }
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>}
+</code></pre></div>
+<p>A derived value is never silently converted to its base type (that would drop
+its fields). For polymorphism, use <code>dyn</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>class Shape {
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    virtual func name() -&gt; str {
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>        return "shape"
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    }
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>}
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>class Square : Shape {
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    override func name() -&gt; str {
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>        return "square"
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    }
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>}
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>Square sq = Square {}
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>dyn Shape s = sq
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>println(s.name())        // square
 </code></pre></div>
 <h2 id="visibility">Visibility<a class="headerlink" href="#visibility" title="Permanent link">&para;</a></h2>
-<p>Fields and methods are <strong>private by default</strong>. Use <code>pub</code> or <code>protected</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>class BankAccount {
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    float64 balance                 // private (default)
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    pub func deposit(float64 amount) -&gt; void {
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        balance += amount
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    }
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    pub func get_balance() -&gt; float64 {
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>        return balance
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    }
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>    protected func audit_log() -&gt; void {
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>        // only this class and subclasses
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>    }
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>}
+<p>Fields and methods are <strong>private by default</strong>; <code>pub</code> makes them visible
+outside their module.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>class BankAccount {
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    float64 balance                 // private
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    pub func deposit(float64 amount) -&gt; void {
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        this.balance += amount
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    }
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    pub func get_balance() -&gt; float64 {
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>        return this.balance
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    }
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>}
 </code></pre></div>
 <h2 id="traits">Traits<a class="headerlink" href="#traits" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>trait Printable {
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    func print() -&gt; void
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>}
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>impl Printable for Point {
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    func print() -&gt; void {
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        println("({this.x}, {this.y})")
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    }
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>trait Describe {
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    func describe() -&gt; str
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>}
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>impl Describe for Point {
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    func describe() -&gt; str {
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>        return "({this.x}, {this.y})"
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    }
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>}
 </code></pre></div>
-<h2 id="adding-traits-to-existing-types">Adding traits to existing types<a class="headerlink" href="#adding-traits-to-existing-types" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>impl Printable for Circle {
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    func print() -&gt; void {
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>        println("Circle r={this.radius}")
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    }
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>}
+<p>A trait object, <code>dyn Describe</code>, holds any value whose type implements the
+trait:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>dyn Describe d = Point { x: 1.0, y: 2.0 }
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>println(d.describe())
 </code></pre></div>
+<p>Traits can be implemented for types you didn't write, including primitives.</p>
+<h2 id="coming-in-10">Coming in 1.0<a class="headerlink" href="#coming-in-10" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Not implemented yet</p>
+<ul>
+<li><code>protected</code> members, visible to the class and its subclasses.</li>
+<li>Referring to a field inside a method without <code>this.</code>.</li>
+<li>Abstract methods: <code>abstract func area() -&gt; float64</code> in a class, which every
+  subclass must override.</li>
+<li><code>clone()</code>, a deep copy (part of <a href="../memory-safety/">ownership and moves</a>).</li>
+<li>Calling a <code>void</code> method through <code>dyn</code>, methods with arguments through
+  <code>dyn</code>, and passing a concrete value where a <code>dyn</code> parameter is expected.</li>
+</ul>
+</div>
 
 
 

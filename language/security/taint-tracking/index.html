@@ -2032,32 +2032,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#how-it-works" class="md-nav__link">
+  <a href="#what-it-prevents" class="md-nav__link">
     <span class="md-ellipsis">
       
-        How it works
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#declaring-sources-sinks-and-sanitizers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Declaring sources, sinks, and sanitizers
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-injection-attacks-this-prevents" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What injection attacks this prevents
+        What it prevents
       
     </span>
   </a>
@@ -3139,32 +3117,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#how-it-works" class="md-nav__link">
+  <a href="#what-it-prevents" class="md-nav__link">
     <span class="md-ellipsis">
       
-        How it works
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#declaring-sources-sinks-and-sanitizers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Declaring sources, sinks, and sanitizers
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-injection-attacks-this-prevents" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What injection attacks this prevents
+        What it prevents
       
     </span>
   </a>
@@ -3191,31 +3147,8 @@
       
         
       
-        
-      
-        
-      
     
   
-  
-  <nav class="sten-toc">
-    <h3 class="sten-toc__title">Table of Contents</h3>
-    <ul class="sten-toc__list">
-      
-      <li><a href="#how-it-works">How it works</a>
-        
-      </li>
-      
-      <li><a href="#declaring-sources-sinks-and-sanitizers">Declaring sources, sinks, and sanitizers</a>
-        
-      </li>
-      
-      <li><a href="#what-injection-attacks-this-prevents">What injection attacks this prevents</a>
-        
-      </li>
-      
-    </ul>
-  </nav>
   
   
                   
@@ -3226,49 +3159,44 @@
 
 
 <h1 id="taint-tracking">Taint Tracking<a class="headerlink" href="#taint-tracking" title="Permanent link">&para;</a></h1>
-<p>Taint tracking is a compile-time data flow analysis that prevents injection attacks. It is part of the type system — not a linter, not a runtime check.</p>
-<h2 id="how-it-works">How it works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
-<p>Data from external sources is marked <code>@tainted</code>. That taint propagates through the program. Any value derived from tainted data is also tainted. A <code>@sink</code> — a function that could cause harm if it receives untrusted input — refuses tainted data at compile time. A <code>@sanitizer</code> removes the taint by validating or escaping the data.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>// Source: tainted input from the web
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>@tainted str name = request.get("name")
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>// Propagation: anything derived from 'name' is also tainted
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>@tainted str greeting = "Hello, " + name
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>// Sink: the database refuses tainted data
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>// db.query("SELECT * FROM users WHERE name = '{name}'")  // compile error
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>// Sanitizer: validate and escape, taint is removed
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>str safe_name = sql_escape(name)
+<p>Taint tracking is a compile-time data-flow analysis that prevents injection
+attacks. Data from an untrusted source is <strong>tainted</strong>; anything computed from
+tainted data is tainted too; and a <strong>sink</strong> (a function that would be
+dangerous with untrusted input) refuses tainted data at compile time. A
+<strong>sanitizer</strong> returns clean data.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>import std.string.{split, join}
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>@tainted
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>func read_param() -&gt; str {          // a source: its result is tainted
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    return "x'; DROP TABLE users"
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>}
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>@sanitizer
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>func sql_escape(str s) -&gt; str {     // returns clean data: doubles every quote
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    return join(split(s, "'"), "''")
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>}
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>// Now it can reach the sink
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>db.query("SELECT * FROM users WHERE name = '{safe_name}'")
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>@sink
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>func db_query(str sql) -&gt; void {    // refuses tainted data
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    println(sql)
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>}
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>func main() -&gt; int32 {
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    str name = read_param()
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    // db_query("SELECT * FROM users WHERE name = '{name}'")   // compile error
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    str safe = sql_escape(name)
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    db_query("SELECT * FROM users WHERE name = '{safe}'")      // ok
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    return 0
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>}
 </code></pre></div>
-<h2 id="declaring-sources-sinks-and-sanitizers">Declaring sources, sinks, and sanitizers<a class="headerlink" href="#declaring-sources-sinks-and-sanitizers" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>// A source — returns tainted data
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>@source func read_http_param(str key) -&gt; @tainted str {
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    // ...
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>}
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>// A sanitizer — accepts tainted, returns clean
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>@sanitizer func sql_escape(@tainted str input) -&gt; str {
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    // ...
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>}
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>// A sink — refuses tainted data (compiler enforces this)
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>@sink func db_query(str sql) -&gt; void {
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    // ...
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>}
+<p>A variable can be marked as a source directly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>@tainted str input = arg(1)
 </code></pre></div>
-<h2 id="what-injection-attacks-this-prevents">What injection attacks this prevents<a class="headerlink" href="#what-injection-attacks-this-prevents" title="Permanent link">&para;</a></h2>
-<ul>
-<li>SQL injection</li>
-<li>Command injection</li>
-<li>HTML/XSS injection</li>
-<li>Path traversal</li>
-<li>LDAP injection</li>
-<li>Any custom sink you define</li>
-</ul>
+<p>Taint flows through assignments, string interpolation, concatenation and
+function calls.</p>
+<h2 id="what-it-prevents">What it prevents<a class="headerlink" href="#what-it-prevents" title="Permanent link">&para;</a></h2>
+<p>SQL injection, command injection, HTML/XSS injection, path traversal, and any
+injection into a sink you define.</p>
 
 
 

@@ -1776,32 +1776,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#default-parameters" class="md-nav__link">
+  <a href="#generic-functions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Default parameters
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#named-arguments" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Named arguments
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#multiple-return-values-via-tuples" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Multiple return values via tuples
+        Generic functions
       
     </span>
   </a>
@@ -1820,10 +1798,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#methods-ufcs" class="md-nav__link">
+  <a href="#methods" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Methods (UFCS)
+        Methods
       
     </span>
   </a>
@@ -1831,10 +1809,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#const-functions" class="md-nav__link">
+  <a href="#coming-in-10" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Const functions
+        Coming in 1.0
       
     </span>
   </a>
@@ -3194,32 +3172,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#default-parameters" class="md-nav__link">
+  <a href="#generic-functions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Default parameters
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#named-arguments" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Named arguments
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#multiple-return-values-via-tuples" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Multiple return values via tuples
+        Generic functions
       
     </span>
   </a>
@@ -3238,10 +3194,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#methods-ufcs" class="md-nav__link">
+  <a href="#methods" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Methods (UFCS)
+        Methods
       
     </span>
   </a>
@@ -3249,10 +3205,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#const-functions" class="md-nav__link">
+  <a href="#coming-in-10" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Const functions
+        Coming in 1.0
       
     </span>
   </a>
@@ -3287,10 +3243,6 @@
       
         
       
-        
-      
-        
-      
     
   
   
@@ -3302,15 +3254,7 @@
         
       </li>
       
-      <li><a href="#default-parameters">Default parameters</a>
-        
-      </li>
-      
-      <li><a href="#named-arguments">Named arguments</a>
-        
-      </li>
-      
-      <li><a href="#multiple-return-values-via-tuples">Multiple return values via tuples</a>
+      <li><a href="#generic-functions">Generic functions</a>
         
       </li>
       
@@ -3318,11 +3262,11 @@
         
       </li>
       
-      <li><a href="#methods-ufcs">Methods (UFCS)</a>
+      <li><a href="#methods">Methods</a>
         
       </li>
       
-      <li><a href="#const-functions">Const functions</a>
+      <li><a href="#coming-in-10">Coming in 1.0</a>
         
       </li>
       
@@ -3342,55 +3286,81 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>func add(int32 a, int32 b) -&gt; int32 {
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    return a + b
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>}
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>func greet(str name) -&gt; void {     // `-&gt; void` is required
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    println("Hello, {name}!")
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>}
 </code></pre></div>
-<h2 id="default-parameters">Default parameters<a class="headerlink" href="#default-parameters" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>func connect(str host = "localhost", int32 port = 8080) -&gt; bool {
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    // ...
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    return true
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>}
-</code></pre></div>
-<h2 id="named-arguments">Named arguments<a class="headerlink" href="#named-arguments" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>connect(port: 443, host: "example.com")
-</code></pre></div>
-<h2 id="multiple-return-values-via-tuples">Multiple return values via tuples<a class="headerlink" href="#multiple-return-values-via-tuples" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>func divmod(int32 a, int32 b) -&gt; (int32, int32) {
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    return (a / b, a % b)
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>}
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>(int32 q, int32 r) = divmod(17, 5)
+<p>Return values are <strong>must-use</strong>: calling <code>add(1, 2)</code> and ignoring the result
+is a compile error. Use it, assign it, <code>discard add(1, 2)</code> to drop it on
+purpose, or mark the function <code>@ignore_discard</code>.</p>
+<h2 id="generic-functions">Generic functions<a class="headerlink" href="#generic-functions" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>func identity[T](T val) -&gt; T {
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    return val
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>}
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>int32 n = identity(7)
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>str s = identity("hi")
 </code></pre></div>
 <h2 id="lambdas">Lambdas<a class="headerlink" href="#lambdas" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>func(int32, int32) -&gt; int32 add = |a, b| a + b
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>// Multi-line lambda
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>func(int32) -&gt; int32 process = |x| {
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    int32 y = x * 2
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    return y + 1
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>}
+<p>A lambda's parameters and return type are written out. Its type is
+<code>fn(parameter types)-&gt;return type</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>fn(int32)-&gt;int32 square = |int32 n| -&gt; int32 {
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    return n * n
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>}
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>fn()-&gt;void hello = || -&gt; void {
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    println("hello")
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>}
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>func apply(fn(int32)-&gt;int32 f, int32 x) -&gt; int32 {
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    return f(x)
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>}
 </code></pre></div>
-<h2 id="methods-ufcs">Methods (UFCS)<a class="headerlink" href="#methods-ufcs" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>struct Point {
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    float64 x
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    float64 y
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>}
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>func (Point p).distance() -&gt; float64 {
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    return sqrt(p.x * p.x + p.y * p.y)
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>}
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>Point origin = Point { x: 0.0, y: 0.0 }
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>float64 d = origin.distance()
+<p>A lambda can use variables from where it's defined (captures them).</p>
+<h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
+<p>Methods are written inside a struct or class, and reach the value as <code>this</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>struct Point {
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    float64 x
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    float64 y
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    pub func norm2() -&gt; float64 {
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        return this.x * this.x + this.y * this.y
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    }
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>}
 </code></pre></div>
-<h2 id="const-functions">Const functions<a class="headerlink" href="#const-functions" title="Permanent link">&para;</a></h2>
-<p>Evaluated at compile time when all arguments are constants:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>const func factorial(int32 n) -&gt; int32 {
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    if (n &lt;= 1) {
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>        return 1
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    }
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    return n * factorial(n - 1)
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>}
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>const int32 F10 = factorial(10)
+<h2 id="coming-in-10">Coming in 1.0<a class="headerlink" href="#coming-in-10" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Not implemented yet</p>
+<p>These are part of the 1.0 language and are being built.</p>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>// Default parameters
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>func connect(str host = "localhost", int32 port = 8080) -&gt; bool {
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    return true
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>}
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>// Named arguments
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>connect(port: 443, host: "example.com")
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>// Multiple return values via tuples
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>func divmod(int32 a, int32 b) -&gt; (int32, int32) {
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    return (a / b, a % b)
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>}
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>(int32 q, int32 r) = divmod(17, 5)
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>// Methods declared outside the type
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>func (Point p).distance() -&gt; float64 {
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>    return sqrt(p.x * p.x + p.y * p.y)
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>}
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>// Functions evaluated at compile time
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>const func factorial(int32 n) -&gt; int32 {
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>    if (n &lt;= 1) {
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>        return 1
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>    }
+<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>    return n * factorial(n - 1)
+<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>}
+<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>const int32 F10 = factorial(10)
 </code></pre></div>
 
 

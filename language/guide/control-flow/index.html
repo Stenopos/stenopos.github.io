@@ -3377,6 +3377,10 @@
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>}
 </code></pre></div>
 <h2 id="ternary">Ternary<a class="headerlink" href="#ternary" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Coming in 1.0</p>
+<p>Not implemented yet.</p>
+</div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>int32 abs_x = if (x &gt;= 0) x else -x
 </code></pre></div>
 <h2 id="for-loops">For loops<a class="headerlink" href="#for-loops" title="Permanent link">&para;</a></h2>
@@ -3401,21 +3405,28 @@
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>} while (counter &lt; 100)
 </code></pre></div>
 <h2 id="repeat">Repeat<a class="headerlink" href="#repeat" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Coming in 1.0</p>
+<p>Not implemented yet.</p>
+</div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>repeat (5) {
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    println("hello")
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>}
 </code></pre></div>
 <h2 id="match">Match<a class="headerlink" href="#match" title="Permanent link">&para;</a></h2>
 <p>A <code>case</code> uses the colon form: the statements after the <code>:</code> run until the next
-<code>case</code> or the closing <code>}</code>. Patterns can be literals, inclusive (<code>..</code>) or
-exclusive (<code>..&lt;</code>) ranges, or <code>_</code> for the catch-all.</p>
+<code>case</code> or the closing <code>}</code>. Patterns are literals, enum variants, or <code>_</code> for the
+catch-all.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>match (status) {
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    case 200: println("OK")
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    case 404: println("Not found")
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    case 500..599: println("Server error")
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    case _: println("Unknown: {status}")
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>}
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    case _: println("Unknown: {status}")
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>}
 </code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Coming in 1.0: range patterns</p>
+<p><code>case 500..599:</code> (inclusive) and <code>case 500..&lt;600:</code> (exclusive).</p>
+</div>
 <p>A case can run several statements — they all belong to the case until the next
 <code>case</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>match (status) {
@@ -3426,12 +3437,19 @@ exclusive (<code>..&lt;</code>) ranges, or <code>_</code> for the catch-all.</p>
 <a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>        println("Unknown: {status}")
 <a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>}
 </code></pre></div>
-<p>Enum variants match by their qualified name, and payload fields bind as names:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>match (shape) {
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    case Shape.Circle(r): return 3.14159 * r * r
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    case Shape.Rect(w, h): return w * h
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    case Shape.Empty: return 0.0
+<p>Enum variants match by their qualified name, and payload fields bind as names.
+A variant with a payload lists its field types:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>enum Shape : int32 {
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    Circle(float64)
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    Rect(float64, float64)
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    Empty
 <a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>}
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>match (shape) {
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>    case Shape.Circle(r): return 3.14159 * r * r
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>    case Shape.Rect(w, h): return w * h
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>    case Shape.Empty: return 0.0
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>}
 </code></pre></div>
 <h2 id="break-and-continue">Break and continue<a class="headerlink" href="#break-and-continue" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>for (i in 0..&lt;100) {

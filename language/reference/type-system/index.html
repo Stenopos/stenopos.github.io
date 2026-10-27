@@ -3335,40 +3335,56 @@
 <td>Fixed-size array of N elements of type T</td>
 </tr>
 <tr>
-<td><code>(T, U)</code></td>
-<td>Tuple</td>
+<td><code>T[]</code></td>
+<td>Slice: a borrowed view of part of an array</td>
 </tr>
 <tr>
-<td><code>func(T, U) -&gt; V</code></td>
+<td><code>List[T]</code></td>
+<td>Growable list</td>
+</tr>
+<tr>
+<td><code>HashMap[str, V]</code></td>
+<td>String-keyed hash map</td>
+</tr>
+<tr>
+<td><code>T?</code></td>
+<td>Nullable</td>
+</tr>
+<tr>
+<td><code>fn(T, U)-&gt;V</code></td>
 <td>Function type</td>
 </tr>
 <tr>
 <td><code>ptr[T]</code></td>
-<td>Raw pointer (unsafe)</td>
+<td>Raw pointer (<code>unsafe</code>)</td>
 </tr>
 <tr>
-<td><code>ptr[T]?</code></td>
-<td>Nullable raw pointer</td>
+<td><code>dyn Trait</code></td>
+<td>A trait object</td>
 </tr>
 </tbody>
 </table>
+<p><em>Coming in 1.0:</em> tuples <code>(T, U)</code>.</p>
 <h2 id="generic-types">Generic types<a class="headerlink" href="#generic-types" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>struct Pair[T, U] {
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    T first
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    U second
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>struct Pair[A, B] {
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    A first
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    B second
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>}
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>enum Option[T] {
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    Some(T)
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    None
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>}
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>func identity[T](T val) -&gt; T {
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    return val
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>}
 </code></pre></div>
+<p><em>Coming in 1.0:</em> generic enums such as <code>enum Option[T] { Some(T) None }</code>.</p>
 <h2 id="casting">Casting<a class="headerlink" href="#casting" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>cast[T](val)              // safe numeric cast
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>unsafe_cast[T](val)       // unsafe reinterpret / downcast (unsafe)
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>const_cast[T](val)        // remove const
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>cast[T](val)              // numeric conversion between integer and float types
 </code></pre></div>
+<p>Integer casts are exact or truncating as the widths require: widening a signed
+value sign-extends, widening an unsigned one zero-extends.</p>
+<p><em>Coming in 1.0:</em> <code>unsafe_cast[T](val)</code> (reinterpret, inside <code>unsafe</code>) and
+<code>const_cast[T](val)</code>.</p>
 <h2 id="type-aliases">Type aliases<a class="headerlink" href="#type-aliases" title="Permanent link">&para;</a></h2>
+<p><em>Coming in 1.0:</em></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>type Meters = float64
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>type NodeId = uint64
 </code></pre></div>

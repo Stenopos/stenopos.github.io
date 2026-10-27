@@ -1938,28 +1938,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#relative-imports" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Relative imports
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#public-re-exports" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Public re-exports
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#example-layout" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3205,28 +3183,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#relative-imports" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Relative imports
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#public-re-exports" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Public re-exports
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#example-layout" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3263,10 +3219,6 @@
       
         
       
-        
-      
-        
-      
     
   
   
@@ -3283,14 +3235,6 @@
       </li>
       
       <li><a href="#importing">Importing</a>
-        
-      </li>
-      
-      <li><a href="#relative-imports">Relative imports</a>
-        
-      </li>
-      
-      <li><a href="#public-re-exports">Public re-exports</a>
         
       </li>
       
@@ -3340,34 +3284,30 @@ error:</p>
 <p>This keeps a module's surface area deliberate: callers depend only on what you
 chose to expose, and you can refactor everything else freely.</p>
 <h2 id="importing">Importing<a class="headerlink" href="#importing" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>import math.vector.Vec3
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>import math.vector.{Vec3, Vec4}
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>import math.vector.*
+<p>Name what you use from a module in braces:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>import math.vector.{Vec3, Vec4}
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>import std.string.{split, trim}
 </code></pre></div>
-<h2 id="relative-imports">Relative imports<a class="headerlink" href="#relative-imports" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>import self.utils      // same module
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>import super.shared    // parent module
+<p>The compiler finds a module by its <code>module</code> line, in the project's own files,
+its dependencies (see <a href="../../toolchain/tagma/">tagma</a>) and the standard library.</p>
+<div class="admonition note">
+<p class="admonition-title">Coming in 1.0</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>import math.vector.Vec3      // one name, without braces
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>import math.vector.*         // every public name
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>import self.utils            // relative to this module
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>import super.shared          // relative to the parent module
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>pub import math.vector.Vec3  // re-export to this module's importers
 </code></pre></div>
-<h2 id="public-re-exports">Public re-exports<a class="headerlink" href="#public-re-exports" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pub import math.vector.Vec3
-</code></pre></div>
+</div>
 <h2 id="example-layout">Example layout<a class="headerlink" href="#example-layout" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>src/
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  main.sten
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>  math/
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    mod.sten
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    vector.sten
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    matrix.sten
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>  io/
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    mod.sten
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    file.sten
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>src/
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  main.sten          module app
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>  math/
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    vector.sten      module math.vector
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    matrix.sten      module math.matrix
 </code></pre></div>
-<p><code>math/mod.sten</code>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>module math
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>pub import self.vector
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>pub import self.matrix
-</code></pre></div></p>
+<p>A module may live in any file; its <code>module</code> line names it. Keeping the path and
+the module name in step makes a project easy to navigate.</p>
 
 
 

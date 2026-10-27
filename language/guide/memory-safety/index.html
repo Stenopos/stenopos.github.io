@@ -1849,10 +1849,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#how-it-works" class="md-nav__link">
+  <a href="#freed-at-the-end-of-scope" class="md-nav__link">
     <span class="md-ellipsis">
       
-        How it works
+        Freed at the end of scope
       
     </span>
   </a>
@@ -1871,17 +1871,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#borrow-checker" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Borrow checker
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#raw-pointers" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1893,10 +1882,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#no-null-pointer-dereferences" class="md-nav__link">
+  <a href="#calling-c" class="md-nav__link">
     <span class="md-ellipsis">
       
-        No null pointer dereferences
+        Calling C
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#no-null-dereferences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No null dereferences
       
     </span>
   </a>
@@ -3161,10 +3161,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#how-it-works" class="md-nav__link">
+  <a href="#freed-at-the-end-of-scope" class="md-nav__link">
     <span class="md-ellipsis">
       
-        How it works
+        Freed at the end of scope
       
     </span>
   </a>
@@ -3183,17 +3183,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#borrow-checker" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Borrow checker
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#raw-pointers" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3205,10 +3194,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#no-null-pointer-dereferences" class="md-nav__link">
+  <a href="#calling-c" class="md-nav__link">
     <span class="md-ellipsis">
       
-        No null pointer dereferences
+        Calling C
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#no-null-dereferences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No null dereferences
       
     </span>
   </a>
@@ -3250,7 +3250,7 @@
     <h3 class="sten-toc__title">Table of Contents</h3>
     <ul class="sten-toc__list">
       
-      <li><a href="#how-it-works">How it works</a>
+      <li><a href="#freed-at-the-end-of-scope">Freed at the end of scope</a>
         
       </li>
       
@@ -3258,15 +3258,15 @@
         
       </li>
       
-      <li><a href="#borrow-checker">Borrow checker</a>
-        
-      </li>
-      
       <li><a href="#raw-pointers">Raw pointers</a>
         
       </li>
       
-      <li><a href="#no-null-pointer-dereferences">No null pointer dereferences</a>
+      <li><a href="#calling-c">Calling C</a>
+        
+      </li>
+      
+      <li><a href="#no-null-dereferences">No null dereferences</a>
         
       </li>
       
@@ -3282,47 +3282,81 @@
 
 
 <h1 id="memory-safety">Memory Safety<a class="headerlink" href="#memory-safety" title="Permanent link">&para;</a></h1>
-<p>Stenopos uses <strong>NOVA</strong> (No Overhead Value Allocation) to manage heap memory automatically — without a garbage collector and without manual <code>free</code> calls.</p>
-<h2 id="how-it-works">How it works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
-<p>When a value goes out of scope, the compiler inserts a <code>free</code> call automatically. There is no runtime overhead beyond the allocation itself.</p>
+<p>Stenopos manages memory with <strong>NOVA</strong>: no garbage collector and no manual
+<code>free</code>. The compiler inserts every allocation's release at the point the
+value's owner goes away.</p>
+<h2 id="freed-at-the-end-of-scope">Freed at the end of scope<a class="headerlink" href="#freed-at-the-end-of-scope" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>func process() -&gt; void {
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    str data = read_file("input.txt")   // heap allocation
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    println("{data}")
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    // data is freed here automatically — end of scope
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    str data = "a string on the heap"
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    println(data)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    // data is freed here, automatically
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>}
 </code></pre></div>
+<p>Strings, lists and maps free their memory when their owner leaves scope, on
+every path out: falling off the end, <code>return</code>, <code>break</code>, <code>continue</code> or a
+<code>throw</code>. There is no use-after-free, no double free and no leak, and the CI
+checks the whole test corpus under valgrind.</p>
 <h2 id="ownership">Ownership<a class="headerlink" href="#ownership" title="Permanent link">&para;</a></h2>
-<p>Each value has one owner. When you assign a value to a new variable, ownership transfers (a move):</p>
+<p>Every value has exactly one owner.</p>
+<p><strong>Today</strong>, handing a value to a new owner copies it: after <code>str b = a</code>, <code>a</code> and
+<code>b</code> are independent, and changing one never affects the other. This is always
+safe; the compiler already avoids the copy when <code>a</code> is not used again.</p>
+<div class="admonition note">
+<p class="admonition-title">Coming in 1.0: moves (ADR-0040)</p>
+<p>Values that own heap memory (<code>str</code>, <code>List</code>, <code>HashMap</code>, and structs that
+contain them) will <strong>move</strong> instead: after <code>str b = a</code>, <code>a</code> can no longer
+be used, and the compiler reports it if you try. Copying becomes explicit
+with <code>.clone()</code>. Numbers, <code>bool</code> and structs of plain data still copy
+implicitly. Parameters borrow: the function reads the value and the caller
+keeps it.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>str a = "hello"
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>str b = a       // 'a' is moved into 'b'
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>// println(a)    // compile error — 'a' was moved
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>println(b)       // ok
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>str b = a          // a moves into b
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>println(a)         // error: use of moved value `a`
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>str c = b.clone()  // an explicit, independent copy
 </code></pre></div>
-<h2 id="borrow-checker">Borrow checker<a class="headerlink" href="#borrow-checker" title="Permanent link">&para;</a></h2>
-<p>The borrow checker prevents use-after-move at compile time, with no runtime checks needed.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>str message = "hello"
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>str other = message      // move
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>println(message)          // error: value was moved
-</code></pre></div>
+<p>Moves make transfers free (no hidden copies), let messages and channels
+hand data over without copying, and let capabilities be values that can't
+be duplicated.</p>
+</div>
 <h2 id="raw-pointers">Raw pointers<a class="headerlink" href="#raw-pointers" title="Permanent link">&para;</a></h2>
-<p>For C interoperability, raw pointers are available — but only in <code>unsafe</code> blocks:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>extern "C" func malloc(uint64 size) -&gt; ptr[void]
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>unsafe {
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    ptr[int32] p = cast[ptr[int32]](malloc(4))
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    *p = 42
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    int32 val = *p
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>}
+<p>For talking to C, raw pointers exist, confined to <code>unsafe</code> blocks:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>func main() -&gt; void {
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    int32 x = 41
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    unsafe {
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>        ptr[int32] p = &amp;x
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        *p = *p + 1
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    }
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    println("{x}")     // 42
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>}
 </code></pre></div>
-<h2 id="no-null-pointer-dereferences">No null pointer dereferences<a class="headerlink" href="#no-null-pointer-dereferences" title="Permanent link">&para;</a></h2>
-<p>Nullable pointers use <code>ptr[T]?</code> syntax and must be checked before use:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>ptr[int32]? maybe = find_value()
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>if (maybe != null) {
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    unsafe {
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>        int32 val = *maybe
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    }
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>}
+<p>Dereferencing a pointer and calling an <code>extern</code> C function require <code>unsafe</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Coming in 1.0 (ADR-0041)</p>
+<p><em>Every</em> use of a raw pointer will require <code>unsafe</code>, including taking an
+address with <code>&amp;x</code> and holding a <code>ptr[T]</code>, so the <code>unsafe</code> blocks are the
+complete list of places to audit.</p>
+</div>
+<h2 id="calling-c">Calling C<a class="headerlink" href="#calling-c" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>extern "C" {
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    func abs(int32 n) -&gt; int32
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    func labs(int64 n) -&gt; int64
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>}
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>func main() -&gt; void {
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    unsafe {
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        println("{abs(0 - 7)} {labs(0 - 9)}")
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    }
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>}
 </code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Limits today</p>
+<p>An <code>extern</code> function's parameters and result must all be <code>int32</code>, or all
+<code>int64</code>. Pointers, strings, structs and mixed types are coming (PLAN M8).</p>
+</div>
+<h2 id="no-null-dereferences">No null dereferences<a class="headerlink" href="#no-null-dereferences" title="Permanent link">&para;</a></h2>
+<p>Nullable values (<code>T?</code>) must be checked before use; the compiler narrows the
+type after the check (see <a href="../variables-types/#nullable-types">Variables and Types</a>).
+Raw pointers will follow the same rule as <code>ptr[T]?</code>.</p>
 
 
 

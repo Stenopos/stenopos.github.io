@@ -2223,63 +2223,13 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Modules">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#io" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        io
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#collections" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        collections
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#math" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        math
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#string" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        string
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
-  <a href="#built-in-string-methods" class="md-nav__link">
+  <a href="#built-into-every-str" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Built-in string methods
+        Built into every str
       
     </span>
   </a>
@@ -3186,63 +3136,13 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Modules">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#io" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        io
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#collections" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        collections
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#math" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        math
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#string" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        string
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
-  <a href="#built-in-string-methods" class="md-nav__link">
+  <a href="#built-into-every-str" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Built-in string methods
+        Built into every str
       
     </span>
   </a>
@@ -3280,21 +3180,9 @@
       
       <li><a href="#modules">Modules</a>
         
-        <ul>
-          
-          <li><a href="#io">io</a></li>
-          
-          <li><a href="#collections">collections</a></li>
-          
-          <li><a href="#math">math</a></li>
-          
-          <li><a href="#string">string</a></li>
-          
-        </ul>
-        
       </li>
       
-      <li><a href="#built-in-string-methods">Built-in string methods</a>
+      <li><a href="#built-into-every-str">Built into every str</a>
         
       </li>
       
@@ -3310,48 +3198,161 @@
 
 
 <h1 id="standard-library-reference">Standard Library Reference<a class="headerlink" href="#standard-library-reference" title="Permanent link">&para;</a></h1>
-<p>The Stenopos standard library is in active development. See the <a href="https://github.com/Stenopos/std">std repository</a> for current status.</p>
+<p>The standard library is written in Stenopos and ships with every Syntagma
+release (pinned by <code>std.lock</code>). Import what you use by name:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>import std.string.{split, join, trim}
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>import std.math.{sqrt, gcd}
+</code></pre></div>
 <h2 id="modules">Modules<a class="headerlink" href="#modules" title="Permanent link">&para;</a></h2>
-<h3 id="io"><code>io</code><a class="headerlink" href="#io" title="Permanent link">&para;</a></h3>
-<p>File and console I/O.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>import io.file
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>str content = io.file.read("data.txt")
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>io.file.write("output.txt", content)
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>What it has</th>
+<th>Tested</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>std.string</code></td>
+<td>split, join, trim, case conversion, padding, searching, character classes</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.math</code></td>
+<td>abs, min/max/clamp (generic), gcd/lcm, integer powers, floor/ceil/round, sqrt, π/e/τ</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.list</code></td>
+<td>Generic <code>List[T]</code> helpers: first/last, contains, index_of, count, copy, concat, fill, reverse, take, drop</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.collections</code></td>
+<td>Typed list helpers: range, sum/min/max, count, concat, slice</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.sort</code></td>
+<td>Sorting and searching</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.algo</code></td>
+<td>Small algorithms over <code>List[int32]</code></td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.io</code></td>
+<td>read_lines, write_lines, append_file</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.os</code></td>
+<td>Processes and arguments: run, run_ok, args, has_flag</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.convert</code></td>
+<td>Primitives to and from strings: parse_int, is_int, …_to_str</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.fmt</code></td>
+<td>Number and string formatting, radix conversion</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.bytes</code></td>
+<td>Byte buffers: building, little/big-endian reads and writes</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.hex</code>, <code>std.base64</code></td>
+<td>Encoding and decoding byte buffers</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.json</code></td>
+<td>A JSON value tree, parser and serializer</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.hash</code></td>
+<td>Non-cryptographic hashes: FNV-1a, djb2, CRC-32</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.crypto.sha256</code>, <code>std.crypto.sha512</code></td>
+<td>SHA-2 (FIPS 180-4)</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.crypto.ed25519</code></td>
+<td>Ed25519 signature verification (RFC 8032)</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.crypto.sshsig</code></td>
+<td>SSH signatures (<code>ssh-keygen -Y sign</code>), bound to a namespace and a key</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.random</code></td>
+<td>A seeded, deterministic pseudo-random generator</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.logging</code></td>
+<td>Leveled logging to the console or a file</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.testing</code>, <code>std.assert</code></td>
+<td>A small test framework; runtime assertions</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.net</code></td>
+<td>Blocking TCP sockets</td>
+<td>not yet</td>
+</tr>
+<tr>
+<td><code>std.http</code></td>
+<td>Parsing an HTTP/1.1 request line, building a response</td>
+<td>not yet</td>
+</tr>
+<tr>
+<td><code>std.kernel</code></td>
+<td>Bindings for Linux kernel modules</td>
+<td>designed</td>
+</tr>
+</tbody>
+</table>
+<h2 id="built-into-every-str">Built into every <code>str</code><a class="headerlink" href="#built-into-every-str" title="Permanent link">&para;</a></h2>
+<p>No import needed:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>str s = "Hello, World!"
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>int64 n = s.len()
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>int32 b = s.byte_at(0)
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>str part = s.substring(0, 5)        // "Hello"
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>List[str] words = s.split(", ")
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>int64 at = s.index_of("World")      // 7, or -1
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>bool st = s.starts_with("Hello")
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>str t = "  hi  ".trim()
 </code></pre></div>
-<h3 id="collections"><code>collections</code><a class="headerlink" href="#collections" title="Permanent link">&para;</a></h3>
-<p>Common data structures.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>import collections.list
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>import collections.map
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>import collections.set
-</code></pre></div>
-<h3 id="math"><code>math</code><a class="headerlink" href="#math" title="Permanent link">&para;</a></h3>
-<p>Mathematical functions and constants.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>import math
+<p>Everything else is in <code>std.string</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>import std.string.{contains, ends_with, to_upper, to_lower}
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>float64 result = math.sqrt(2.0)
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>float64 pi = math.PI
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>bool has = contains(s, "World")
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>str loud = to_upper(s)
 </code></pre></div>
-<h3 id="string"><code>string</code><a class="headerlink" href="#string" title="Permanent link">&para;</a></h3>
-<p>String manipulation beyond the built-in methods.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>import string
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>str trimmed = string.trim("  hello  ")
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>str upper = string.to_upper("hello")
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>str[] parts = string.split("a,b,c", ",")
-</code></pre></div>
-<h2 id="built-in-string-methods">Built-in string methods<a class="headerlink" href="#built-in-string-methods" title="Permanent link">&para;</a></h2>
-<p>These are available on any <code>str</code> value without an import:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>str s = "Hello, World!"
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>int32 n = s.len()
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>bool b = s.contains("World")
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>bool starts = s.starts_with("Hello")
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>bool ends = s.ends_with("!")
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>str t = s.trim()
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>str u = s.to_upper()
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>str l = s.to_lower()
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>str r = s.replace("World", "Stenopos")
-</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Coming in 1.0</p>
+<p>After <code>import std.string</code>, its functions are also callable as methods
+(<code>s.contains("World")</code>), and <code>replace</code> is added (ADR-0042).</p>
+</div>
+<p>The source and tests are in the <a href="https://github.com/Stenopos/std">std repository</a>.</p>
 
 
 

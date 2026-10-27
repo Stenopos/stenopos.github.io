@@ -1586,21 +1586,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#debugging-the-compiler-front-end" class="md-nav__link">
+  <a href="#seeing-the-generated-code" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Debugging the compiler front end
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#verifying-generated-code" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Verifying generated code
+        Seeing the generated code
       
     </span>
   </a>
@@ -3266,21 +3255,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#debugging-the-compiler-front-end" class="md-nav__link">
+  <a href="#seeing-the-generated-code" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Debugging the compiler front end
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#verifying-generated-code" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Verifying generated code
+        Seeing the generated code
       
     </span>
   </a>
@@ -3369,8 +3347,6 @@
       
         
       
-        
-      
     
   
   
@@ -3394,11 +3370,7 @@
         
       </li>
       
-      <li><a href="#debugging-the-compiler-front-end">Debugging the compiler front end</a>
-        
-      </li>
-      
-      <li><a href="#verifying-generated-code">Verifying generated code</a>
+      <li><a href="#seeing-the-generated-code">Seeing the generated code</a>
         
       </li>
       
@@ -3483,33 +3455,26 @@ radius."</em></p>
 </code></pre></div>
 <p>A test signals failure by aborting (for example via <code>fail</code>); the runner reports
 a non-zero exit when any test fails.</p>
-<h2 id="debugging-the-compiler-front-end">Debugging the compiler front end<a class="headerlink" href="#debugging-the-compiler-front-end" title="Permanent link">&para;</a></h2>
-<p>When you need to see <em>why</em> a program parses the way it does, two subcommands
-expose the front end directly:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>stenopos<span class="w"> </span>dump-tokens<span class="w"> </span>src/main.sten<span class="w">   </span><span class="c1"># the lexer's token stream: line:col KIND "text"</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>stenopos<span class="w"> </span>dump-ast<span class="w">    </span>src/main.sten<span class="w">   </span><span class="c1"># the parsed AST as an indented tree</span>
+<h2 id="seeing-the-generated-code">Seeing the generated code<a class="headerlink" href="#seeing-the-generated-code" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>stenopos<span class="w"> </span>emit-ir<span class="w"> </span>src/main.sten<span class="w"> </span>main.ll<span class="w">   </span><span class="c1"># the LLVM IR the compiler produces</span>
 </code></pre></div>
-<p><code>dump-ast</code> prints each statement and its children (assignments show their target
-name), so you can see exactly which statements landed in which block — the fastest
-way to tell a lexer problem from a parser one.</p>
-<h2 id="verifying-generated-code">Verifying generated code<a class="headerlink" href="#verifying-generated-code" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>stenopos<span class="w"> </span>build<span class="w"> </span>--verify-ir<span class="w"> </span>src/main.sten<span class="w">   </span><span class="c1"># structural IR checks before codegen</span>
-</code></pre></div>
-<p><code>--verify-ir</code> runs a well-formedness pass over the compiler's internal IR — every
-block has a terminator, every branch targets a real block, no block is
-unreachable — and fails the build if anything is malformed, before it can become a
-runaway loop or a link error. It is cheap and safe to leave on.</p>
+<div class="admonition note">
+<p class="admonition-title">Coming</p>
+<p><code>dump-tokens</code> and <code>dump-ast</code> (the lexer's tokens and the parsed tree), and
+<code>--verify-ir</code> (a structural check of the generated IR) were tools of the
+earlier Rust compiler and haven't been rebuilt yet.</p>
+</div>
 <h2 id="stenopos-explain"><code>stenopos explain</code><a class="headerlink" href="#stenopos-explain" title="Permanent link">&para;</a></h2>
 <p>Every diagnostic is tagged with an error code — <code>error[E0300]: ...</code>. Pass that
 code to <code>stenopos explain</code> for a long-form explanation of the whole class of
 problem, with guidance on how to fix it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>stenopos<span class="w"> </span>explain<span class="w"> </span>E0300
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>stenopos<span class="w"> </span>explain<span class="w"> </span>E0300
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>E0300 [type error]
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>The expected type does not match the actual type. Stenopos does not
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>perform implicit type conversions. Use `cast[T]()` for safe numeric
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>conversions or `.to_X()` methods for other conversions.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>E0300 [type error]
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>The expected type does not match the actual type. Stenopos does not
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>perform implicit type conversions. Use `cast[T]()` for safe numeric
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>conversions or `.to_X()` methods for other conversions.
 </code></pre></div>
 <p>Codes are grouped by compiler phase: <code>E01xx</code> lexer, <code>E02xx</code> parser, <code>E03xx</code>
 type, <code>E04xx</code> memory/ownership, <code>E05xx</code> security. <code>explain</code> knows every standard
@@ -3527,28 +3492,28 @@ input and output using the <a href="https://microsoft.github.io/language-server-
   names of modules the file imports.</li>
 </ul>
 <h3 id="neovim">Neovim<a class="headerlink" href="#neovim" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nv">vim</span><span class="p">.</span><span class="py">filetype</span><span class="p">.</span><span class="nf">add</span><span class="p">({</span><span class="w"> </span><span class="nv">extension</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nv">sten</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"stenopos"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">})</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nv">vim</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="nf">nvim_create_autocmd</span><span class="p">(</span><span class="s2">"FileType"</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="nv">pattern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"stenopos"</span><span class="p">,</span>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span><span class="nv">callback</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">args</span><span class="p">)</span>
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="nv">vim</span><span class="p">.</span><span class="py">lsp</span><span class="p">.</span><span class="nf">start</span><span class="p">({</span>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">      </span><span class="nv">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"stenopos-lsp"</span><span class="p">,</span>
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">      </span><span class="nv">cmd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">"stenopos"</span><span class="p">,</span><span class="w"> </span><span class="s2">"lsp"</span><span class="w"> </span><span class="p">},</span>
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">      </span><span class="nv">root_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">vim</span><span class="p">.</span><span class="py">fs</span><span class="p">.</span><span class="nf">dirname</span><span class="p">(</span><span class="nv">args</span><span class="p">.</span><span class="py">file</span><span class="p">),</span>
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">    </span><span class="p">})</span>
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">  </span><span class="kr">end</span><span class="p">,</span>
-<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="p">})</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nv">vim</span><span class="p">.</span><span class="py">filetype</span><span class="p">.</span><span class="nf">add</span><span class="p">({</span><span class="w"> </span><span class="nv">extension</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nv">sten</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"stenopos"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">})</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="nv">vim</span><span class="p">.</span><span class="py">api</span><span class="p">.</span><span class="nf">nvim_create_autocmd</span><span class="p">(</span><span class="s2">"FileType"</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="nv">pattern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"stenopos"</span><span class="p">,</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="nv">callback</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">args</span><span class="p">)</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="nv">vim</span><span class="p">.</span><span class="py">lsp</span><span class="p">.</span><span class="nf">start</span><span class="p">({</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">      </span><span class="nv">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"stenopos-lsp"</span><span class="p">,</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">      </span><span class="nv">cmd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">"stenopos"</span><span class="p">,</span><span class="w"> </span><span class="s2">"lsp"</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">      </span><span class="nv">root_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">vim</span><span class="p">.</span><span class="py">fs</span><span class="p">.</span><span class="nf">dirname</span><span class="p">(</span><span class="nv">args</span><span class="p">.</span><span class="py">file</span><span class="p">),</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">    </span><span class="p">})</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">  </span><span class="kr">end</span><span class="p">,</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="p">})</span>
 </code></pre></div>
 <h3 id="vs-code">VS Code<a class="headerlink" href="#vs-code" title="Permanent link">&para;</a></h3>
 <p>A small extension that starts <code>stenopos lsp</code> as its server:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ExtensionContext</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"vscode"</span><span class="p">;</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">LanguageClient</span><span class="p">,</span><span class="w"> </span><span class="nx">TransportKind</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"vscode-languageclient/node"</span><span class="p">;</span>
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">activate</span><span class="p">(</span><span class="nx">_ctx</span><span class="o">:</span><span class="w"> </span><span class="kt">ExtensionContext</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">serverOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">command</span><span class="o">:</span><span class="w"> </span><span class="s2">"stenopos"</span><span class="p">,</span><span class="w"> </span><span class="nx">args</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"lsp"</span><span class="p">],</span><span class="w"> </span><span class="nx">transport</span><span class="o">:</span><span class="w"> </span><span class="kt">TransportKind.stdio</span><span class="w"> </span><span class="p">};</span>
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">clientOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">documentSelector</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nx">scheme</span><span class="o">:</span><span class="w"> </span><span class="s2">"file"</span><span class="p">,</span><span class="w"> </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="s2">"stenopos"</span><span class="w"> </span><span class="p">}]</span><span class="w"> </span><span class="p">};</span>
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">  </span><span class="ow">new</span><span class="w"> </span><span class="nx">LanguageClient</span><span class="p">(</span><span class="s2">"stenopos"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Stenopos"</span><span class="p">,</span><span class="w"> </span><span class="nx">serverOptions</span><span class="p">,</span><span class="w"> </span><span class="nx">clientOptions</span><span class="p">).</span><span class="nx">start</span><span class="p">();</span>
-<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ExtensionContext</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"vscode"</span><span class="p">;</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">LanguageClient</span><span class="p">,</span><span class="w"> </span><span class="nx">TransportKind</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"vscode-languageclient/node"</span><span class="p">;</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">activate</span><span class="p">(</span><span class="nx">_ctx</span><span class="o">:</span><span class="w"> </span><span class="kt">ExtensionContext</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">serverOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">command</span><span class="o">:</span><span class="w"> </span><span class="s2">"stenopos"</span><span class="p">,</span><span class="w"> </span><span class="nx">args</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"lsp"</span><span class="p">],</span><span class="w"> </span><span class="nx">transport</span><span class="o">:</span><span class="w"> </span><span class="kt">TransportKind.stdio</span><span class="w"> </span><span class="p">};</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">clientOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">documentSelector</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nx">scheme</span><span class="o">:</span><span class="w"> </span><span class="s2">"file"</span><span class="p">,</span><span class="w"> </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="s2">"stenopos"</span><span class="w"> </span><span class="p">}]</span><span class="w"> </span><span class="p">};</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">  </span><span class="ow">new</span><span class="w"> </span><span class="nx">LanguageClient</span><span class="p">(</span><span class="s2">"stenopos"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Stenopos"</span><span class="p">,</span><span class="w"> </span><span class="nx">serverOptions</span><span class="p">,</span><span class="w"> </span><span class="nx">clientOptions</span><span class="p">).</span><span class="nx">start</span><span class="p">();</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="p">}</span>
 </code></pre></div>
 <p>Register the <code>stenopos</code> language for <code>.sten</code> files in the extension's
 <code>package.json</code> (<code>contributes.languages</code>).</p>
