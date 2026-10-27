@@ -3424,20 +3424,29 @@
 <td>0 to 2^64-1</td>
 </tr>
 <tr>
-<td><code>float32</code></td>
-<td>32-bit float</td>
-<td>IEEE 754</td>
-</tr>
-<tr>
 <td><code>float64</code></td>
 <td>64-bit float</td>
 <td>IEEE 754</td>
 </tr>
 </tbody>
 </table>
+<p><code>int8</code>, <code>int16</code>, <code>uint8</code>, <code>uint16</code> and <code>float32</code> are reserved for later; using
+one today is a compile error.</p>
+<p>Unsigned types are unsigned everywhere: comparison, <code>/</code>, <code>%</code> and <code>&gt;&gt;</code> treat the
+top bit as part of the value. An unsigned value can't be negated, and going
+below zero is an overflow.</p>
+<p>Integer literals can be written in decimal, hex or binary, with <code>_</code> to group
+digits. A literal takes the type of the integer it is used with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>func main() -&gt; int32 {
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    uint64 mask = 0xffff_ffff_0000_0000
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    uint32 flags = 0b1010
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    println("{mask &gt;&gt; 32} {flags % 4}")
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    return 0
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>}
+</code></pre></div>
 <p>No implicit numeric conversions. Use <code>cast[T]()</code> to convert explicitly:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>int32 x = 42
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>int64 y = cast[int64](x)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>int32 x = 42
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>int64 y = cast[int64](x)
 </code></pre></div>
 <h2 id="integer-overflow-is-checked">Integer overflow is checked<a class="headerlink" href="#integer-overflow-is-checked" title="Permanent link">&para;</a></h2>
 <p>Arithmetic that overflows its type is a bug — and a frequent source of security
@@ -3445,8 +3454,8 @@ holes, where a wrapped size calculation leads to an undersized buffer. Stenopos
 does not let it happen silently. Every <code>+</code>, <code>-</code>, and <code>*</code> on an integer (signed or
 unsigned) is checked; if the result does not fit the type, the program stops with
 a diagnostic instead of wrapping to a wrong value:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>int32 x = 2147483647    // int32 max
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>int32 y = x + 1         // aborts: "integer overflow: add of two int32 values"
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>int32 x = 2147483647    // int32 max
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>int32 y = x + 1         // aborts: "integer overflow: add of two int32 values"
 </code></pre></div>
 <p>This applies to compound assignments (<code>+=</code>, <code>-=</code>, <code>*=</code>) too. In-range arithmetic
 is unaffected, and the check is cheap — it compiles to an add plus a
@@ -3455,55 +3464,55 @@ jump-on-overflow, not a software division.</p>
 <p>Some algorithms <em>want</em> modular arithmetic — hashes, checksums, PRNGs, ring-buffer
 indices. For those, ask for wrapping explicitly with <code>wrapping_add</code>,
 <code>wrapping_sub</code>, and <code>wrapping_mul</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>// FNV-1a hash — defined in terms of wrapping arithmetic, so it says so.
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>func fnv1a(str s) -&gt; uint32 {
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    uint32 hash = 2166136261
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    int64 i = 0
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    while (i &lt; s.len()) {
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>        hash = wrapping_mul(hash, 16777619)
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>        hash = wrapping_add(hash, cast[uint32](s.byte_at(i)))
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>        i += 1
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    }
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    return hash
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>// FNV-1a hash — defined in terms of wrapping arithmetic, so it says so.
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>func fnv1a(str s) -&gt; uint32 {
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    uint32 hash = 2166136261
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    int64 i = 0
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    while (i &lt; s.len()) {
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        hash = wrapping_mul(hash, 16777619)
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        hash = wrapping_add(hash, cast[uint32](s.byte_at(i)))
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        i += 1
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    }
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    return hash
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>}
 </code></pre></div>
 <p>The default is safe; wrapping is opt-in and visible at the call site.</p>
 <h2 id="arrays">Arrays<a class="headerlink" href="#arrays" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>int64 numbers[5] = [1, 2, 3, 4, 5]
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>int64 first = numbers[0]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>int64 numbers[5] = [1, 2, 3, 4, 5]
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>int64 first = numbers[0]
 </code></pre></div>
 <p>Array access is bounds-checked at compile time where possible.</p>
 <h2 id="nullable-types">Nullable types<a class="headerlink" href="#nullable-types" title="Permanent link">&para;</a></h2>
 <p>Any type <code>T</code> has a nullable form <code>T?</code> that holds either a value or <code>null</code>. The
 compiler will not let you use a <code>T?</code> as a <code>T</code> until you have ruled out null.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>int32? maybe = null
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>str? name = "Stenopos"
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>int32? maybe = null
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>str? name = "Stenopos"
 </code></pre></div>
 <p>Compare against <code>null</code> with <code>==</code> / <code>!=</code>. After a check, the value is <strong>narrowed</strong>
 to the non-nullable type for the rest of that scope:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>func classify(int32? n) -&gt; str {
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    if (n == null) {
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>        return "none"
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    }
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    // n is narrowed to plain int32 here
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    return "value: {n}"
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>func classify(int32? n) -&gt; str {
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    if (n == null) {
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>        return "none"
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    }
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    // n is narrowed to plain int32 here
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    return "value: {n}"
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>}
 </code></pre></div>
 <p>Three operators work on nullables:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>int32? missing = null
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>int32 x = missing ?? 0          // ?? — fallback when the left side is null
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>int32? forced = 7
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>int32 y = forced!!              // !! — assert non-null (aborts at runtime if null)
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>int64 len = name?.len() ?? 0    // ?. — safe access, yields a nullable
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>int32? missing = null
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>int32 x = missing ?? 0          // ?? — fallback when the left side is null
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>int32? forced = 7
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>int32 y = forced!!              // !! — assert non-null (aborts at runtime if null)
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>int64 len = name?.len() ?? 0    // ?. — safe access, yields a nullable
 </code></pre></div>
 <p>There is no null-pointer dereference: raw pointers are nullable with the same
 <code>ptr[T]?</code> syntax and must be checked before use inside <code>unsafe</code>.</p>
 <h2 id="type-aliases">Type aliases<a class="headerlink" href="#type-aliases" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>type Meters = float64
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>type Seconds = float64
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>Meters distance = 100.0
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>Seconds time = 9.58
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>type Meters = float64
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>type Seconds = float64
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>Meters distance = 100.0
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>Seconds time = 9.58
 </code></pre></div>
 
 
