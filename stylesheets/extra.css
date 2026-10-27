@@ -27,6 +27,7 @@
   --md-accent-fg-color: var(--sten-crimson);
   --md-code-bg-color: var(--sten-surface);
   --md-typeset-a-color: var(--sten-gold);
+  --sten-link: var(--sten-gold);
   --sten-border: #3A342A;
 }
 
@@ -34,6 +35,7 @@
 [data-md-color-scheme="default"] {
   --md-accent-fg-color: #A8262F;
   --md-typeset-a-color: #8A6A1E;
+  --sten-link: #8A6A1E;
   --md-code-bg-color: #F6F1E6;
   --sten-border: #DDD3C0;
 }
@@ -55,8 +57,10 @@
 }
 
 /* ---------- Links ---------- */
+/* Our own variable: Material's primary palette sets --md-typeset-a-color with a
+   more specific selector, which turned links blue. */
 .md-typeset a {
-  color: var(--md-typeset-a-color);
+  color: var(--sten-link);
   text-decoration: none;
   transition: color 0.15s ease;
 }
@@ -269,3 +273,33 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ---------- Status labels (hooks/stenopos.py) ---------- */
+.sten-status-line { margin: -0.4rem 0 1.2rem; }
+.md-typeset .sten-status {
+  display: inline-block;
+  padding: 0.1em 0.6em;
+  margin-right: 0.3em;
+  border-radius: 1em;
+  border: 1px solid currentColor;
+  font-size: 0.75em;
+  font-weight: 600;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.sten-status--shipped     { color: #3F8F5A; }
+.sten-status--in-progress { color: var(--sten-gold); }
+.sten-status--designed    { color: var(--sten-stone); }
+.sten-status--not-started { color: var(--sten-crimson-dim); }
+[data-md-color-scheme="default"] .sten-status--in-progress { color: #8A6A1E; }
+[data-md-color-scheme="default"] .sten-status--designed    { color: #6B6455; }
+
+/* ---------- Release cards ---------- */
+.md-typeset .sten-release {
+  border: 1px solid var(--sten-border);
+  border-left: 3px solid var(--sten-gold);
+  border-radius: 6px;
+  padding: 0.4rem 1rem 0.8rem;
+  margin: 1rem 0;
+}
+.md-typeset .sten-release__head { font-size: 1.05em; margin-bottom: 0.4rem; }
