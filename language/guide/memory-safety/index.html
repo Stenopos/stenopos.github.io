@@ -3309,8 +3309,11 @@ be used, and the compiler reports it if you try. Copying becomes explicit
 with <code>.clone()</code>. Numbers, <code>bool</code> and structs of plain data still copy
 implicitly. A parameter borrows (the function reads the value and the
 caller keeps it) unless the function keeps it, by storing or returning
-it: then the parameter consumes the value, and the compiler infers which
-without any annotation.</p>
+it: then the parameter consumes the value. A function that changes a
+parameter (<code>list.push(x)</code>) borrows it mutably, and that value can't be
+passed twice in the same call. The compiler infers all of this without
+any annotation. <code>spawn</code> always takes its arguments, and a clone of a
+<code>@sensitive</code> or <code>secret</code> value stays protected.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>str a = "hello"
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>str b = a          // a moves into b
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>println(a)         // error: use of moved value `a`
