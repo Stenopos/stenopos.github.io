@@ -3944,7 +3944,7 @@ move and <code>.clone()</code> copies (<a href="../../guide/memory-safety/">Memo
 </tr>
 <tr>
 <td><code>@requires(cond)</code> / <code>@ensures(cond)</code></td>
-<td>Contracts (<code>result</code> is the return value)</td>
+<td>Contracts (<code>result</code> is the return value); several are joined with <code>&amp;&amp;</code></td>
 </tr>
 <tr>
 <td><code>@sensitive</code></td>
@@ -3955,18 +3955,43 @@ move and <code>.clone()</code> copies (<a href="../../guide/memory-safety/">Memo
 <td>Callers may drop the return value</td>
 </tr>
 <tr>
+<td><code>@deprecated("msg")</code></td>
+<td>Callers get a warning</td>
+</tr>
+<tr>
+<td><code>@inline</code> / <code>@hot</code> / <code>@cold</code></td>
+<td>Inlining and code-placement hints</td>
+</tr>
+<tr>
+<td><code>@no_return</code></td>
+<td>The function never returns (<code>return</code> is an error; reaching the end aborts)</td>
+</tr>
+<tr>
+<td><code>@section("name")</code></td>
+<td>Place the function in a linker section</td>
+</tr>
+<tr>
+<td><code>@module_init</code> / <code>@module_exit</code></td>
+<td>A module's entry and exit points (<code>.init.text</code> / <code>.exit.text</code>)</td>
+</tr>
+<tr>
+<td><code>@repr("C")</code></td>
+<td>Lay a struct out exactly as C does (every field must have a C equivalent)</td>
+</tr>
+<tr>
 <td><code>@test</code></td>
 <td>A test function</td>
 </tr>
 <tr>
 <td><code>@cfg(...)</code></td>
-<td>Conditional compilation (<code>target_arch</code>, <code>ptr_width</code>, <code>profile</code>, <code>feature</code>)</td>
+<td>Conditional compilation (<code>target_arch</code>, <code>ptr_width</code>, <code>profile</code>, <code>feature</code>); comes first</td>
 </tr>
 </tbody>
 </table>
-<p><em>(1.0)</em>: <code>@packed</code>, <code>@aligned(N)</code>, <code>@section("name")</code>, <code>@repr("C")</code>,
-<code>@inline</code>, <code>@cold</code>, <code>@hot</code>, <code>@no_return</code> and <code>@deprecated("msg")</code> are accepted
-today but have no effect yet.</p>
+<p>Annotations work the same on methods as on functions. An unknown or misplaced
+annotation is a compile error. <em>(1.0)</em>: <code>@packed</code>, <code>@aligned(N)</code> and <code>@opaque</code>
+are rejected until C-compatible layouts land; annotations on struct fields and
+the call-site annotations on generic functions are not supported yet.</p>
 <hr />
 <h2 id="imports">Imports<a class="headerlink" href="#imports" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>import std.string.{split, trim}
