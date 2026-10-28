@@ -3134,8 +3134,9 @@ files are <code>.sten</code>. It reads like C, with braces, C-style declarations
 semicolons, and it makes security part of the type system:</p>
 <ul>
 <li><strong>Memory safety without a garbage collector.</strong> NOVA ownership tracking frees
-  memory at compile-time-known points and rules out use-after-free, double
-  frees and data races.</li>
+  memory at compile-time-known points and rules out use-after-free and
+  double frees. Threads share state only through <code>chan</code>, <code>atomic</code> and the
+  locks; a data-race-freedom guarantee is planned, not yet checked.</li>
 <li><strong>Taint tracking.</strong> Untrusted input cannot reach a SQL query, a shell
   command or another sink until it passes a sanitizer.</li>
 <li><strong>Effects and capabilities.</strong> A function declares what it may do
