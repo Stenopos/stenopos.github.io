@@ -3511,16 +3511,25 @@ to the non-nullable type for the rest of that scope:</p>
 <p>There is no null-pointer dereference: raw pointers are nullable with the same
 <code>ptr[T]?</code> syntax and must be checked before use inside <code>unsafe</code>.</p>
 <h2 id="type-aliases">Type aliases<a class="headerlink" href="#type-aliases" title="Permanent link">&para;</a></h2>
-<div class="admonition note">
-<p class="admonition-title">Coming in 1.0</p>
-<p>Not implemented yet.</p>
-</div>
+<p>A type alias gives a type a second name. It is declared at the top level of
+a module:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>type Meters = float64
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>type Seconds = float64
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>Meters distance = 100.0
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>Seconds time = 9.58
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>type Scores = List[float64]
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>type Index[V] = HashMap[str, V]     // a generic alias
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>type MaybeId = uint64?
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>Meters distance = 100.0
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>Index[int32] ages = map_new()
 </code></pre></div>
+<p>An alias is <strong>transparent</strong>: <code>Meters</code> <em>is</em> <code>float64</code>, so a <code>Meters</code> passes
+anywhere a <code>float64</code> is expected and back, with no cast. Use an alias to make
+a signature readable; when two quantities must not mix (metres and seconds),
+use a struct with one field instead, which the compiler keeps distinct.</p>
+<p>Like other declarations, an alias is private to its module unless it is
+<code>pub type</code>, and another module imports it by name:
+<code>import geo.{Meters}</code>. An alias that refers to itself (directly or through
+another alias), a use with the wrong number of type arguments, and a right
+side that is not a type are compile errors.</p>
 
 
 

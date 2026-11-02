@@ -3384,10 +3384,16 @@ value sign-extends, widening an unsigned one zero-extends.</p>
 <p><em>Coming in 1.0:</em> <code>unsafe_cast[T](val)</code> (reinterpret, inside <code>unsafe</code>) and
 <code>const_cast[T](val)</code>.</p>
 <h2 id="type-aliases">Type aliases<a class="headerlink" href="#type-aliases" title="Permanent link">&para;</a></h2>
-<p><em>Coming in 1.0:</em></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>type Meters = float64
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>type NodeId = uint64
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>type Index[V] = HashMap[str, V]
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>pub type Edges = List[NodeId]
 </code></pre></div>
+<p>An alias is transparent: it names an existing type and is interchangeable
+with it. It is declared at module level, private unless <code>pub</code>, imported by
+name, and may be generic. Self-reference, a wrong type-argument count and a
+non-type right side are rejected. See
+<a href="../../guide/variables-types/#type-aliases">Variables and types</a>.</p>
 
 
 

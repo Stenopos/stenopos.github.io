@@ -3726,8 +3726,9 @@ optimized, stripped and anonymized (the binary reads as a generic C program).</p
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>bool active = true
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>int32 flags = zeroed()      // zero value (numeric/bool), type from context
 </code></pre></div>
-<p><strong>Mutable by default</strong>; <code>const</code> for immutability. <em>(1.0)</em>: <code>auto n = 42</code>,
-type aliases (<code>type Meters = float64</code>).</p>
+<p><strong>Mutable by default</strong>; <code>const</code> for immutability. Type aliases:
+<code>type Meters = float64</code>, <code>type Index[V] = HashMap[str, V]</code>. <em>(1.0)</em>:
+<code>auto n = 42</code>.</p>
 <hr />
 <h2 id="functions">Functions<a class="headerlink" href="#functions" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>func add(int32 a, int32 b) -&gt; int32 {
