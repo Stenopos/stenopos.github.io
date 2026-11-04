@@ -1939,6 +1939,28 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#qualified-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Qualified names
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#renaming-with-as" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Renaming with as
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#which-import-wins" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3223,6 +3245,28 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#qualified-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Qualified names
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#renaming-with-as" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Renaming with as
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#which-import-wins" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3316,6 +3360,10 @@
         
         <ul>
           
+          <li><a href="#qualified-names">Qualified names</a></li>
+          
+          <li><a href="#renaming-with-as">Renaming with as</a></li>
+          
           <li><a href="#which-import-wins">Which import wins</a></li>
           
           <li><a href="#relative-imports">Relative imports</a></li>
@@ -3347,7 +3395,7 @@
 </code></pre></div>
 <h2 id="visibility-pub-vs-private">Visibility: <code>pub</code> vs. private<a class="headerlink" href="#visibility-pub-vs-private" title="Permanent link">&para;</a></h2>
 <p>Declarations are <strong>private to their module by default</strong>. A function, struct,
-enum, trait, or type alias is only visible to code in the same module unless you
+enum, trait, type alias or top-level <code>const</code> is only visible to code in the same module unless you
 mark it <code>pub</code>. Reaching for a private name from another module is a compile
 error:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>module math.internal
@@ -3376,55 +3424,78 @@ chose to expose, and you can refactor everything else freely.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>import math.vector.{Vec3, Vec4}   // several names
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>import math.vector.Vec3           // one name, without braces
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>import math.vector.*              // every public name
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>import std.string                 // a whole module (its methods on str)
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>import math.vector                // the whole module: `vector.Vec3`
 </code></pre></div>
 <p><code>*</code> brings in only <code>pub</code> names; a private one stays private however it is
 imported.</p>
+<h3 id="qualified-names">Qualified names<a class="headerlink" href="#qualified-names" title="Permanent link">&para;</a></h3>
+<p>A module imported whole qualifies its names with its last segment, so two
+modules' items of the same name can be used side by side:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>import geo.flat
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>import geo.round
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>flat.Point a = flat.make(1, 2)
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>round.Point b = round.Point { r: 5 }
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>flat.Side s = flat.Side.Right
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>println("{flat.ORIGIN_X}")
+</code></pre></div>
+<p>In the importing module the qualifier names only the module: a variable or
+parameter called <code>flat</code> is an error there. Importing a module whole also
+brings in its methods on built-in types (<code>import std.string</code>).</p>
+<h3 id="renaming-with-as">Renaming with <code>as</code><a class="headerlink" href="#renaming-with-as" title="Permanent link">&para;</a></h3>
+<p><code>as</code> gives an imported item, or a module's qualifier, another name:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>import geo.round as r                     // r.Point, r.describe(...)
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>import geo.flat.describe as describe_flat
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>import geo.{Point as GeoPoint, distance}
+</code></pre></div>
+<p>The item is then imported only under the new name. Two modules imported
+whole under the same qualifier are an error; rename one with <code>as</code>.</p>
 <h3 id="which-import-wins">Which import wins<a class="headerlink" href="#which-import-wins" title="Permanent link">&para;</a></h3>
 <p>A module's own items come first, then names imported explicitly, then names
 offered by <code>*</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>import geo.a.*
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>import geo.b.*
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>import geo.b.helper     // `helper` is geo.b's, though geo.a.* offers one too
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>import geo.a.*
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>import geo.b.*
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>import geo.b.helper     // `helper` is geo.b's, though geo.a.* offers one too
 </code></pre></div>
 <p>When two <code>*</code> imports offer different items under one name, using that name
 is an error until you import the one you mean by name. Importing one name
 explicitly from two modules is an error too. A clash you never use costs
 nothing, and the same item reached by two paths (directly and through a
 re-export) is one item, not a clash.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>error[E0300]: `helper` is ambiguous: `geo.a.*` and `geo.b.*` both offer it;
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>import the one you mean by name (`import geo.a.helper`)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>error[E0300]: `helper` is ambiguous: `geo.a.*` and `geo.b.*` both offer it;
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>import the one you mean by name (`import geo.a.helper`)
 </code></pre></div>
 <p>The compiler finds a module by its <code>module</code> line, in the project's own files,
 its dependencies (see <a href="../../toolchain/tagma/">tagma</a>) and the standard library.</p>
 <h3 id="relative-imports">Relative imports<a class="headerlink" href="#relative-imports" title="Permanent link">&para;</a></h3>
 <p>A path may start from the importing module: <code>self</code> is the module itself and
 <code>super</code> its parent (<code>super.super</code> the grandparent).</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>module app.net
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>import self.http.{Request}     // app.net.http
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>import super.config.*          // app.config
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>module app.net
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>import self.http.{Request}     // app.net.http
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>import super.config.*          // app.config
 </code></pre></div>
 <h3 id="re-exports">Re-exports<a class="headerlink" href="#re-exports" title="Permanent link">&para;</a></h3>
 <p><code>pub import</code> makes imported names part of this module's own public surface,
 so a facade module can present items that live in submodules:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>module geo
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>pub import self.core.{Point, distance}
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>pub import self.units.*
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>module geo
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>pub import self.core.{Point, distance}
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>pub import self.units.*
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>pub import self.flat.{make as flat_point}   // re-exported under another name
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>module app
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>import geo.{Point, distance}    // defined in geo.core, offered by geo
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>module app
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>import geo.{Point, distance}    // defined in geo.core, offered by geo
 </code></pre></div>
 <p>A re-export names items (or <code>*</code>); <code>pub import</code> of a whole module is an
 error.</p>
 <h2 id="example-layout">Example layout<a class="headerlink" href="#example-layout" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>src/
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>  main.sten          module app
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>  math/
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    vector.sten      module math.vector
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    matrix.sten      module math.matrix
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>src/
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  main.sten          module app
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>  math/
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    vector.sten      module math.vector
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    matrix.sten      module math.matrix
 </code></pre></div>
 <p>A module may live in any file; its <code>module</code> line names it. Keeping the path and
 the module name in step makes a project easy to navigate.</p>

@@ -3996,9 +3996,15 @@ the call-site annotations on generic functions are not supported yet.</p>
 <hr />
 <h2 id="imports">Imports<a class="headerlink" href="#imports" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>import std.string.{split, trim}
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>import app.models.{User, load_user}
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>import app.models.{User, load_user as load}
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>import app.models.Session              // one name
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>import app.util.*                      // every pub name
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>import geo.flat                        // qualified: flat.Point, flat.make()
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>import geo.round as r                  // r.Point
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>pub import self.core.{Point}           // re-export
 </code></pre></div>
-<p>Use <code>import</code>, not <code>use</code>. <em>(1.0)</em>: <code>import a.b.name</code>, <code>import a.b.*</code>, <code>pub import</code>.</p>
+<p>Use <code>import</code>, not <code>use</code>. An explicit import beats <code>*</code>; two <code>*</code> imports
+offering one name make it ambiguous.</p>
 
 
 
