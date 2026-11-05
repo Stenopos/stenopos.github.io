@@ -1558,6 +1558,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#fetching-and-checking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fetching and checking
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#commands" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3205,6 +3216,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#fetching-and-checking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fetching and checking
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#commands" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3243,6 +3265,8 @@
       
         
       
+        
+      
     
   
   
@@ -3266,6 +3290,10 @@
         
       </li>
       
+      <li><a href="#fetching-and-checking">Fetching and checking</a>
+        
+      </li>
+      
       <li><a href="#commands">Commands</a>
         
       </li>
@@ -3285,8 +3313,10 @@
 <p class="sten-status-line"><span class="sten-status sten-status--designed">Designed</span></p>
 
 <div class="admonition info">
-<p class="admonition-title">Coming in rc.6</p>
-<p>This is the agreed design. Until it ships, dependencies are local paths.</p>
+<p class="admonition-title">Arriving in rc.6</p>
+<p>Selecting versions (<code>tagma resolve</code>) and fetching and checking packages
+(<code>tagma fetch</code>, and every build) work now; <code>tagma add</code>, <code>publish</code> and the
+capability limits arrive with the rest of rc.6.</p>
 </div>
 <h2 id="using-packages">Using packages<a class="headerlink" href="#using-packages" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>tagma<span class="w"> </span>add<span class="w"> </span>stenopos/json
@@ -3346,6 +3376,27 @@ lock, for CI.</p>
 <li>The exact format is <code>FORMAT.md</code> in the registry repository, and
   <code>tagma registry check</code> checks a checkout against it, every signature
   included. The registry's CI runs it on every change.</li>
+</ul>
+<h2 id="fetching-and-checking">Fetching and checking<a class="headerlink" href="#fetching-and-checking" title="Permanent link">&para;</a></h2>
+<p><code>tagma build</code> (and <code>run</code>, <code>check</code>, <code>test</code>) fetches what a project needs. If
+<code>Tagma.lock</code> still satisfies <code>Tagma.toml</code>, it is used as it is and the index
+isn't needed at all; otherwise tagma updates its copy of the index, selects
+versions and rewrites the lock first (<code>tagma fetch</code> does just that).</p>
+<ul>
+<li><strong>The index</strong> is a clone of the registry in <code>~/.cache/stenopos/registry</code>.
+  It is used only after every signature checks out against the root key
+  built into tagma, and only with a snapshot that hasn't expired and isn't
+  older than one already seen. Anything else is refused, and the previous
+  copy is kept.</li>
+<li><strong>A package</strong> is fetched by its commit (from GitHub, then its mirror) into
+  <code>~/.cache/stenopos/src/&lt;namespace&gt;/&lt;name&gt;/&lt;version&gt;</code>, and used only if its
+  files hash to the content hash in <code>Tagma.lock</code>. That is checked again on
+  every build, so a file changed in the cache is noticed and fetched afresh.</li>
+<li><code>--offline</code> uses only the cache; <code>--locked</code> fails rather than change
+  <code>Tagma.lock</code> (for CI).</li>
+<li><code>STENOPOS_CACHE</code> moves the cache. <code>STENOPOS_REGISTRY_URL</code> and
+  <code>STENOPOS_REGISTRY_ROOT</code> (a file with the root public key) point tagma at
+  another registry, such as a private one.</li>
 </ul>
 <h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
 <table>
