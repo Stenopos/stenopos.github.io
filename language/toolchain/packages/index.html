@@ -3324,6 +3324,9 @@ version that nobody asked for. Versions only move when you run
   or frozen copy of the index is detected.</li>
 <li>Every version is signed by its publisher, and the registry's root key is
   kept offline.</li>
+<li>The exact format is <code>FORMAT.md</code> in the registry repository, and
+  <code>tagma registry check</code> checks a checkout against it, every signature
+  included. The registry's CI runs it on every change.</li>
 </ul>
 <h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
 <table>

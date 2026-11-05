@@ -3501,17 +3501,29 @@ to the non-nullable type for the rest of that scope:</p>
 <a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    return "value: {n}"
 <a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>}
 </code></pre></div>
+<p>Narrowing also follows <code>&amp;&amp;</code> and <code>||</code>: the right side of <code>x != null &amp;&amp; ...</code>
+only runs when <code>x</code> isn't null, and the right side of <code>x == null || ...</code> only
+when it isn't either, so both see <code>x</code> as non-null. An <code>if</code> whose condition is
+such a chain narrows its branches the same way:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>if (port != null &amp;&amp; port &gt; 1024) {
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    listen(port)
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>}
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>if (a == null || b == null) {
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    return 0
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>}
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>return a + b        // both narrowed: the `if` returned otherwise
+</code></pre></div>
 <p>Three operators work on nullables:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>int32? missing = null
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>int32 x = missing ?? 0          // ?? — fallback when the left side is null
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>int32? forced = 7
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>int32 y = forced!!              // !! — assert non-null (aborts at runtime if null)
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>int64 len = name?.len() ?? 0    // ?. — safe access, yields a nullable
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>int32? missing = null
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>int32 x = missing ?? 0          // ?? — fallback when the left side is null
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>int32? forced = 7
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>int32 y = forced!!              // !! — assert non-null (aborts at runtime if null)
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>int64 len = name?.len() ?? 0    // ?. — safe access, yields a nullable
 </code></pre></div>
 <p><code>??</code> evaluates its right side only when the left side is null, so a default
 can be a call: <code>cached ?? load()</code> loads only on a miss. Fallbacks chain,
 tried left to right, and the chain ends with a value that can't be null:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>str shown = nickname ?? full_name ?? "anonymous"
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>str shown = nickname ?? full_name ?? "anonymous"
 </code></pre></div>
 <p>The left side of <code>??</code> must be able to be null. After <code>if (n == null) { ... }</code>
 returns, <code>n</code> is known not to be null, so <code>n ?? 0</code> is an error: write <code>n</code>.</p>
@@ -3520,13 +3532,13 @@ returns, <code>n</code> is known not to be null, so <code>n ?? 0</code> is an er
 <h2 id="type-aliases">Type aliases<a class="headerlink" href="#type-aliases" title="Permanent link">&para;</a></h2>
 <p>A type alias gives a type a second name. It is declared at the top level of
 a module:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>type Meters = float64
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>type Scores = List[float64]
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>type Index[V] = HashMap[str, V]     // a generic alias
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>type MaybeId = uint64?
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>Meters distance = 100.0
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>Index[int32] ages = map_new()
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>type Meters = float64
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>type Scores = List[float64]
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>type Index[V] = HashMap[str, V]     // a generic alias
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>type MaybeId = uint64?
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>Meters distance = 100.0
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>Index[int32] ages = map_new()
 </code></pre></div>
 <p>An alias is <strong>transparent</strong>: <code>Meters</code> <em>is</em> <code>float64</code>, so a <code>Meters</code> passes
 anywhere a <code>float64</code> is expected and back, with no cast. Use an alias to make
