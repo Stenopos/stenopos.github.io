@@ -3314,9 +3314,9 @@
 
 <div class="admonition info">
 <p class="admonition-title">Arriving in rc.6</p>
-<p>Selecting versions (<code>tagma resolve</code>) and fetching and checking packages
-(<code>tagma fetch</code>, and every build) work now; <code>tagma add</code>, <code>publish</code> and the
-capability limits arrive with the rest of rc.6.</p>
+<p>Selecting versions (<code>tagma resolve</code>), fetching and checking packages
+(<code>tagma fetch</code>, and every build) and capability grants work now;
+<code>tagma add</code> and <code>publish</code> arrive with the rest of rc.6.</p>
 </div>
 <h2 id="using-packages">Using packages<a class="headerlink" href="#using-packages" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>tagma<span class="w"> </span>add<span class="w"> </span>stenopos/json
@@ -3332,13 +3332,30 @@ capability limits arrive with the rest of rc.6.</p>
 <li><strong><code>version = "1.2"</code> means "at least 1.2.0"</strong> in the 1.x line.</li>
 </ul>
 <h2 id="dependencies-only-get-the-powers-you-grant">Dependencies only get the powers you grant<a class="headerlink" href="#dependencies-only-get-the-powers-you-grant" title="Permanent link">&para;</a></h2>
-<p>Every package's capabilities (<code>File</code>, <code>Network</code>, <code>Process</code>…) are computed
-when it is published. In <code>Tagma.toml</code> you grant each dependency the
-capabilities it may use. If a new version of a JSON library suddenly wants
-<code>Network</code>, <strong>your build fails</strong> and names the package, instead of quietly
-giving it network access. A package can only pass on to its own
-dependencies what it was granted itself, and the compiler enforces the
-limit on the package's code.</p>
+<p>Every package's capabilities (<code>File</code>, <code>Network</code>, <code>Process</code>, <code>Memory</code>,
+<code>System</code>) are computed when it is published. In <code>Tagma.toml</code> you grant each
+dependency the capabilities it may use:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">[dependencies]</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"stenopos/json"</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"1.2"</span><span class="p">,</span><span class="w"> </span><span class="n">caps</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">files</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"stenopos/files"</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"1.0"</span><span class="p">,</span><span class="w"> </span><span class="n">caps</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"File"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p>If a new version of a JSON library suddenly wants <code>Network</code>, <strong>your build
+fails</strong> and names the package and the capability, instead of quietly giving
+it network access.</p>
+<ul>
+<li><strong>Grants pass down, never up.</strong> A package can give its own dependencies
+  only what it was given: what a package may use is what every grant on
+  every path to it allows (your grant, then each package's grant to its
+  dependencies in its own <code>Tagma.toml</code>).</li>
+<li><strong>The compiler enforces it on the code.</strong> tagma checks the capabilities
+  the registry recorded, and the compiler holds each package's source to the
+  same limit: a function in it may declare only granted capabilities, so a
+  package that misrecorded them still can't use more.</li>
+<li><strong><code>unsafe</code> needs <code>Memory</code>; <code>extern "C"</code> and inline <code>asm</code> need <code>System</code>.</strong>
+  Raw memory and foreign code could do anything, so granting <code>System</code> means
+  trusting the package with everything.</li>
+<li>Your own code and path dependencies are not limited.</li>
+</ul>
 <h2 id="predictable-versions">Predictable versions<a class="headerlink" href="#predictable-versions" title="Permanent link">&para;</a></h2>
 <p>tagma uses <strong>minimal version selection</strong>: for each package it takes the
 highest of the minimum versions anything asks for, and never a newer
@@ -3349,15 +3366,15 @@ that is at least 1.2.0, and that version's own requirements are followed in
 turn. For each package and major version, the build uses the highest version
 reached. Yanked versions are skipped, unless <code>Tagma.lock</code> already names one.
 <code>tagma resolve</code> does this now and writes <code>Tagma.lock</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">[[package]]</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"stenopos/json"</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"1.2.0"</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">commit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"2222222222222222222222222222222222222222"</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="n">hash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"sha256:…"</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">caps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"File"</span><span class="p">]</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"stenopos/text 1.0.3"</span><span class="p">]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">[[package]]</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"stenopos/json"</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"1.2.0"</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">commit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"2222222222222222222222222222222222222222"</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">hash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"sha256:…"</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="n">caps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"File"</span><span class="p">]</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"stenopos/text 1.0.3"</span><span class="p">]</span>
 </code></pre></div>
 <p>Each entry is a selected version with the commit and content hash its source
 must match, the capabilities its code uses, and the exact versions of its
