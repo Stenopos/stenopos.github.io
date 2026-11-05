@@ -3318,49 +3318,61 @@ purpose, or mark the function <code>@ignore_discard</code>.</p>
 <a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>}
 </code></pre></div>
 <p>A lambda can use variables from where it's defined (captures them).</p>
+<p>A named function is a value of its function type too, so it can be stored or
+passed without wrapping it in a lambda:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>func square(int32 n) -&gt; int32 {
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    return n * n
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>}
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>fn(int32)-&gt;int32 f = square
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>int32 v = apply(square, 5)      // 25
+</code></pre></div>
+<p>Taking a function as a value needs the same <code>@cap</code> declarations as calling
+it, since the call through the value isn't checked again. Generic and
+<code>extern</code> functions can't be values; wrap one in a lambda that calls it.</p>
 <h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
 <p>Methods are written inside a struct or class, and reach the value as <code>this</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>struct Point {
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    float64 x
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    float64 y
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    pub func norm2() -&gt; float64 {
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        return this.x * this.x + this.y * this.y
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    }
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>struct Point {
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    float64 x
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    float64 y
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    pub func norm2() -&gt; float64 {
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>        return this.x * this.x + this.y * this.y
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    }
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>}
 </code></pre></div>
 <h2 id="coming-in-10">Coming in 1.0<a class="headerlink" href="#coming-in-10" title="Permanent link">&para;</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Not implemented yet</p>
 <p>These are part of the 1.0 language and are being built.</p>
 </div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>// Default parameters
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>func connect(str host = "localhost", int32 port = 8080) -&gt; bool {
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    return true
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>}
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>// Named arguments
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>connect(port: 443, host: "example.com")
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>// Multiple return values via tuples
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>func divmod(int32 a, int32 b) -&gt; (int32, int32) {
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    return (a / b, a % b)
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>}
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>(int32 q, int32 r) = divmod(17, 5)
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>// Methods declared outside the type
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>func (Point p).distance() -&gt; float64 {
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>    return sqrt(p.x * p.x + p.y * p.y)
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>}
-<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>
-<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>// Functions evaluated at compile time
-<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>const func factorial(int32 n) -&gt; int32 {
-<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>    if (n &lt;= 1) {
-<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>        return 1
-<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>    }
-<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>    return n * factorial(n - 1)
-<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>}
-<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>const int32 F10 = factorial(10)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>// Default parameters
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>func connect(str host = "localhost", int32 port = 8080) -&gt; bool {
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    return true
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>}
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>// Named arguments
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>connect(port: 443, host: "example.com")
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>// Multiple return values via tuples
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>func divmod(int32 a, int32 b) -&gt; (int32, int32) {
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    return (a / b, a % b)
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>}
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>(int32 q, int32 r) = divmod(17, 5)
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>// Methods declared outside the type
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>func (Point p).distance() -&gt; float64 {
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>    return sqrt(p.x * p.x + p.y * p.y)
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>}
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>// Functions evaluated at compile time
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>const func factorial(int32 n) -&gt; int32 {
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>    if (n &lt;= 1) {
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>        return 1
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>    }
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>    return n * factorial(n - 1)
+<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a>}
+<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a>const int32 F10 = factorial(10)
 </code></pre></div>
 
 
