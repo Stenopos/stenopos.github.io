@@ -1868,6 +1868,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Ownership">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters-borrow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters borrow
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -3180,6 +3197,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Ownership">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters-borrow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters borrow
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -3256,6 +3290,12 @@
       
       <li><a href="#ownership">Ownership</a>
         
+        <ul>
+          
+          <li><a href="#parameters-borrow">Parameters borrow</a></li>
+          
+        </ul>
+        
       </li>
       
       <li><a href="#raw-pointers">Raw pointers</a>
@@ -3301,23 +3341,61 @@ checks the whole test corpus under valgrind.</p>
 <p><strong>Today</strong>, handing a value to a new owner copies it: after <code>str b = a</code>, <code>a</code> and
 <code>b</code> are independent, and changing one never affects the other. This is always
 safe; the compiler already avoids the copy when <code>a</code> is not used again.</p>
+<h3 id="parameters-borrow">Parameters borrow<a class="headerlink" href="#parameters-borrow" title="Permanent link">&para;</a></h3>
+<p>Passing a struct, list or map to a function doesn't copy it: the parameter
+<strong>borrows</strong> the caller's value for the length of the call. A function that
+changes its parameter changes the caller's value, just as a method changes
+<code>this</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>struct Account {
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    str owner
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    float64 balance
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>}
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>func transfer(Account from, Account to, float64 amount) -&gt; void {
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    from.balance = from.balance - amount
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    to.balance = to.balance + amount
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>}
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>func main() -&gt; void {
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    Account a = Account { owner: "ana", balance: 100.0 }
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    Account b = Account { owner: "ben", balance: 0.0 }
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    transfer(a, b, 30.0)
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    println("{a.balance} {b.balance}")   // 70 30
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>}
+</code></pre></div>
+<p>Assigning to the parameter itself (<code>from = Account { ... }</code>) only rebinds the
+name inside the function; the caller's value is untouched. Returning a
+parameter returns a copy.</p>
+<p>A value passed to a parameter the function changes can't also appear in
+another argument of the same call: both parameters would name the same value,
+and a <code>push</code> through one could move the memory the other is reading. The
+compiler works out which parameters each function changes (following the
+calls it makes), and rejects the call:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>transfer(a, a, 30.0)
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>// error: `a` is passed to `transfer` twice, and `transfer` changes its
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>// parameter `from`, so two parameters would borrow the same value; pass
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>// a copy instead: `Account a_copy = a`
+</code></pre></div>
+<p>The same goes for a value and a field inside it (<code>f(a, a.items)</code>) and for a
+method's receiver (<code>a.merge(a)</code>). Strings and numbers are passed by value, so
+they never conflict. <code>spawn</code> gives the new Hemerodrome its own copy of each
+struct argument, because it can outlive the caller.</p>
 <div class="admonition note">
 <p class="admonition-title">Coming in 1.0: moves (ADR-0040)</p>
 <p>Values that own heap memory (<code>str</code>, <code>List</code>, <code>HashMap</code>, and structs that
 contain them) will <strong>move</strong> instead: after <code>str b = a</code>, <code>a</code> can no longer
 be used, and the compiler reports it if you try. Copying becomes explicit
 with <code>.clone()</code>. Numbers, <code>bool</code> and structs of plain data still copy
-implicitly. A parameter borrows (the function reads the value and the
-caller keeps it) unless the function keeps it, by storing or returning
-it: then the parameter consumes the value. A function that changes a
-parameter (<code>list.push(x)</code>) borrows it mutably, and that value can't be
-passed twice in the same call. The compiler infers all of this without
-any annotation. <code>spawn</code> always takes its arguments, and a clone of a
-<code>@sensitive</code> or <code>secret</code> value stays protected.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>str a = "hello"
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>str b = a          // a moves into b
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>println(a)         // error: use of moved value `a`
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>str c = b.clone()  // an explicit, independent copy
+implicitly. A parameter keeps borrowing (above) unless the function
+keeps the value, by storing or returning it: then the parameter consumes
+it, with no copy. The compiler infers this without any annotation, as it
+already infers which parameters are changed. <code>spawn</code> takes its arguments
+instead of copying them, and a clone of a <code>@sensitive</code> or <code>secret</code> value
+stays protected.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>str a = "hello"
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>str b = a          // a moves into b
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>println(a)         // error: use of moved value `a`
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>str c = b.clone()  // an explicit, independent copy
 </code></pre></div>
 <p>Moves make transfers free (no hidden copies), let messages and channels
 hand data over without copying, and let capabilities be values that can't
@@ -3325,14 +3403,14 @@ be duplicated.</p>
 </div>
 <h2 id="raw-pointers">Raw pointers<a class="headerlink" href="#raw-pointers" title="Permanent link">&para;</a></h2>
 <p>For talking to C, raw pointers exist, confined to <code>unsafe</code> blocks:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>func main() -&gt; void {
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    int32 x = 41
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    unsafe {
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>        ptr[int32] p = &amp;x
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        *p = *p + 1
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    }
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    println("{x}")     // 42
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>func main() -&gt; void {
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    int32 x = 41
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    unsafe {
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>        ptr[int32] p = &amp;x
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        *p = *p + 1
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    }
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    println("{x}")     // 42
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>}
 </code></pre></div>
 <p>Dereferencing a pointer and calling an <code>extern</code> C function require <code>unsafe</code>.</p>
 <div class="admonition note">
@@ -3342,16 +3420,16 @@ address with <code>&amp;x</code> and holding a <code>ptr[T]</code>, so the <code
 complete list of places to audit.</p>
 </div>
 <h2 id="calling-c">Calling C<a class="headerlink" href="#calling-c" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>extern "C" {
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    func abs(int32 n) -&gt; int32
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    func labs(int64 n) -&gt; int64
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>}
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>func main() -&gt; void {
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    unsafe {
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        println("{abs(0 - 7)} {labs(0 - 9)}")
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    }
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>extern "C" {
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    func abs(int32 n) -&gt; int32
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    func labs(int64 n) -&gt; int64
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>}
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>func main() -&gt; void {
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    unsafe {
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        println("{abs(0 - 7)} {labs(0 - 9)}")
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    }
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>}
 </code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Limits today</p>
