@@ -3327,6 +3327,9 @@ passed without wrapping it in a lambda:</p>
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>fn(int32)-&gt;int32 f = square
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>int32 v = apply(square, 5)      // 25
 </code></pre></div>
+<p>A function type can name any parameter or return type, <code>List</code> and <code>HashMap</code>
+included: <code>fn(List[int32])-&gt;int32</code>. Lists, maps and structs are borrowed when
+passed through a function value, exactly as in a direct call.</p>
 <p>Taking a function as a value needs the same <code>@cap</code> declarations as calling
 it, since the call through the value isn't checked again. Generic and
 <code>extern</code> functions can't be values; wrap one in a lambda that calls it.</p>
