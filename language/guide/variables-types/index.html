@@ -3508,18 +3508,25 @@ to the non-nullable type for the rest of that scope:</p>
 <a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>int32 y = forced!!              // !! — assert non-null (aborts at runtime if null)
 <a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>int64 len = name?.len() ?? 0    // ?. — safe access, yields a nullable
 </code></pre></div>
+<p><code>??</code> evaluates its right side only when the left side is null, so a default
+can be a call: <code>cached ?? load()</code> loads only on a miss. Fallbacks chain,
+tried left to right, and the chain ends with a value that can't be null:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>str shown = nickname ?? full_name ?? "anonymous"
+</code></pre></div>
+<p>The left side of <code>??</code> must be able to be null. After <code>if (n == null) { ... }</code>
+returns, <code>n</code> is known not to be null, so <code>n ?? 0</code> is an error: write <code>n</code>.</p>
 <p>There is no null-pointer dereference: raw pointers are nullable with the same
 <code>ptr[T]?</code> syntax and must be checked before use inside <code>unsafe</code>.</p>
 <h2 id="type-aliases">Type aliases<a class="headerlink" href="#type-aliases" title="Permanent link">&para;</a></h2>
 <p>A type alias gives a type a second name. It is declared at the top level of
 a module:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>type Meters = float64
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>type Scores = List[float64]
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>type Index[V] = HashMap[str, V]     // a generic alias
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>type MaybeId = uint64?
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>Meters distance = 100.0
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>Index[int32] ages = map_new()
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>type Meters = float64
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>type Scores = List[float64]
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>type Index[V] = HashMap[str, V]     // a generic alias
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>type MaybeId = uint64?
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>Meters distance = 100.0
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>Index[int32] ages = map_new()
 </code></pre></div>
 <p>An alias is <strong>transparent</strong>: <code>Meters</code> <em>is</em> <code>float64</code>, so a <code>Meters</code> passes
 anywhere a <code>float64</code> is expected and back, with no cast. Use an alias to make
