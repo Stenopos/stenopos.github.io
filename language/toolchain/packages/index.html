@@ -1569,6 +1569,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#vendoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vendoring
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#publishing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Publishing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Publishing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-a-packages-code-uses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What a package's code uses
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#commands" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3227,6 +3266,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#vendoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vendoring
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#publishing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Publishing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Publishing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-a-packages-code-uses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What a package's code uses
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#commands" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3267,6 +3345,10 @@
       
         
       
+        
+      
+        
+      
     
   
   
@@ -3294,6 +3376,20 @@
         
       </li>
       
+      <li><a href="#vendoring">Vendoring</a>
+        
+      </li>
+      
+      <li><a href="#publishing">Publishing</a>
+        
+        <ul>
+          
+          <li><a href="#what-a-packages-code-uses">What a package's code uses</a></li>
+          
+        </ul>
+        
+      </li>
+      
       <li><a href="#commands">Commands</a>
         
       </li>
@@ -3313,31 +3409,50 @@
 <p class="sten-status-line"><span class="sten-status sten-status--designed">Designed</span></p>
 
 <div class="admonition info">
-<p class="admonition-title">Arriving in rc.6</p>
-<p>Selecting versions (<code>tagma resolve</code>), fetching and checking packages
-(<code>tagma fetch</code>, and every build) and capability grants work now;
-<code>tagma add</code> and <code>publish</code> arrive with the rest of rc.6.</p>
+<p class="admonition-title">Ships in rc.6</p>
+<p>Everything on this page works in Syntagma's development tree and ships
+with v1.0.0-rc.6. Publishing is open to the Stenopos organization first.</p>
 </div>
 <h2 id="using-packages">Using packages<a class="headerlink" href="#using-packages" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>tagma<span class="w"> </span>add<span class="w"> </span>stenopos/json
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="gp">$ </span>tagma<span class="w"> </span>add<span class="w"> </span>stenopos/dotenv
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="go">       Added dotenv = stenopos/dotenv 1.0.0 (granted File)</span>
 </code></pre></div>
+<p><code>tagma add</code> picks the newest version (or the one you name,
+<code>stenopos/dotenv@1.0.0</code>), writes one line to <code>Tagma.toml</code>, and grants the
+package the capabilities that it and its dependencies use:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">[dependencies]</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"stenopos/json"</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"1.2"</span><span class="p">,</span><span class="w"> </span><span class="n">caps</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">yaml</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"alice/yaml"</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"0.3"</span><span class="p">,</span><span class="w"> </span><span class="n">caps</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"File"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">dotenv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"stenopos/dotenv"</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"1.0.0"</span><span class="p">,</span><span class="w"> </span><span class="n">caps</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"File"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 <ul>
 <li><strong>Names are namespaced</strong> (<code>stenopos/json</code>), so nobody can squat a short
-  name and you can see who owns a package. You import a package by its name
-  (<code>import json.{parse}</code>) and can rename one in <code>Tagma.toml</code>.</li>
+  name and you can see who owns a package. You import a package by the name
+  on the left (<code>import dotenv.{load}</code>); <code>tagma add --as env</code> picks another.</li>
 <li><strong><code>version = "1.2"</code> means "at least 1.2.0"</strong> in the 1.x line.</li>
+<li><strong><code>--caps File,Network</code></strong> (or <code>--caps none</code>) grants exactly that instead;
+  if it is not enough for the package, <code>add</code> says which capability is
+  missing and changes nothing.</li>
+<li>After every edit tagma selects versions, fetches each package and checks
+  its hash and grants. If anything fails, <code>Tagma.toml</code>, <code>Tagma.lock</code> and
+  <code>vendor/</code> are left exactly as they were.</li>
+<li>The rest of <code>Tagma.toml</code> (comments, order) is kept as you wrote it.</li>
 </ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="gp">$ </span>tagma<span class="w"> </span>update<span class="w">            </span><span class="c1"># every dependency, or: tagma update dotenv</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="go">     Updated dotenv: stenopos/dotenv 1.0.0 -&gt; 1.1.0</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="gp">$ </span>tagma<span class="w"> </span>remove<span class="w"> </span>dotenv
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="go">     Removed dotenv (stenopos/dotenv)</span>
+</code></pre></div>
+<p><code>tagma update</code> moves each requirement to the newest version of its major
+version. A new major version is a different package: <code>update</code> mentions it,
+and <code>tagma add stenopos/dotenv@2.0.0</code> moves to it. A new version that needs
+a capability you haven't granted is refused, naming it; raise the grant
+yourself if you trust it.</p>
 <h2 id="dependencies-only-get-the-powers-you-grant">Dependencies only get the powers you grant<a class="headerlink" href="#dependencies-only-get-the-powers-you-grant" title="Permanent link">&para;</a></h2>
 <p>Every package's capabilities (<code>File</code>, <code>Network</code>, <code>Process</code>, <code>Memory</code>,
 <code>System</code>) are computed when it is published. In <code>Tagma.toml</code> you grant each
 dependency the capabilities it may use:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">[dependencies]</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"stenopos/json"</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"1.2"</span><span class="p">,</span><span class="w"> </span><span class="n">caps</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">files</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"stenopos/files"</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"1.0"</span><span class="p">,</span><span class="w"> </span><span class="n">caps</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"File"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">[dependencies]</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"stenopos/json"</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"1.2"</span><span class="p">,</span><span class="w"> </span><span class="n">caps</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">files</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"stenopos/files"</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"1.0"</span><span class="p">,</span><span class="w"> </span><span class="n">caps</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"File"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 <p>If a new version of a JSON library suddenly wants <code>Network</code>, <strong>your build
 fails</strong> and names the package and the capability, instead of quietly giving
@@ -3366,15 +3481,16 @@ that is at least 1.2.0, and that version's own requirements are followed in
 turn. For each package and major version, the build uses the highest version
 reached. Yanked versions are skipped, unless <code>Tagma.lock</code> already names one.
 <code>tagma resolve</code> does this now and writes <code>Tagma.lock</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">[[package]]</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"stenopos/json"</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"1.2.0"</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">commit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"2222222222222222222222222222222222222222"</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">hash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"sha256:…"</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="n">caps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"File"</span><span class="p">]</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"stenopos/text 1.0.3"</span><span class="p">]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">[[package]]</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"stenopos/json"</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"1.2.0"</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">repository</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"https://github.com/Stenopos/json"</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="n">commit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"2222222222222222222222222222222222222222"</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="n">hash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"sha256:…"</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="n">caps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"File"</span><span class="p">]</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"stenopos/text 1.0.3"</span><span class="p">]</span>
 </code></pre></div>
 <p>Each entry is a selected version with the commit and content hash its source
 must match, the capabilities its code uses, and the exact versions of its
@@ -3415,6 +3531,53 @@ versions and rewrites the lock first (<code>tagma fetch</code> does just that).<
   <code>STENOPOS_REGISTRY_ROOT</code> (a file with the root public key) point tagma at
   another registry, such as a private one.</li>
 </ul>
+<h2 id="vendoring">Vendoring<a class="headerlink" href="#vendoring" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="gp">$ </span>tagma<span class="w"> </span>vendor
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="go">    Vendored 3 package(s) into vendor/ (commit it; builds use it and check every hash)</span>
+</code></pre></div>
+<p><code>tagma vendor</code> copies every locked package into
+<code>vendor/&lt;namespace&gt;/&lt;name&gt;/&lt;version&gt;</code>. A project with a <code>vendor/</code> directory
+builds from it alone, with no network and no cache, and still checks each
+package against the content hash in <code>Tagma.lock</code>, so an edited vendored file
+is refused. <code>add</code>, <code>remove</code> and <code>update</code> keep <code>vendor/</code> in step.</p>
+<h2 id="publishing">Publishing<a class="headerlink" href="#publishing" title="Permanent link">&para;</a></h2>
+<p>A package is a library (<code>src/lib.sten</code>) with a namespace and a repository
+in <code>Tagma.toml</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">[package]</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"dotenv"</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">namespace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"stenopos"</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"1.0.0"</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">edition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"2026"</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">repository</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"https://github.com/Stenopos/dotenv"</span>
+</code></pre></div>
+<p>To release a version, raise <code>version</code>, commit, and tag the commit
+<code>v&lt;version&gt;</code>. The package's CI then runs <code>tagma publish</code>, which:</p>
+<ol>
+<li>takes the files of the tagged commit (uncommitted changes are never
+   part of a version) and computes their content hash;</li>
+<li>tests the package, resolving its dependencies afresh;</li>
+<li>finds the capabilities its code uses (<code>tagma caps</code>);</li>
+<li>writes the version entry into a checkout of the registry, signs it with
+   the publisher key, checks the whole checkout (<code>tagma registry check</code>), and
+   commits it.</li>
+</ol>
+<p>The registry's CI then re-derives the entry from the source (<code>tagma registry
+verify</code>: the files at the commit must hash to the recorded hash, and the
+manifest, dependencies and capabilities must match), re-signs the snapshot
+and publishes the index. <code>tagma publish --dry-run --registry &lt;checkout&gt;</code>
+shows the entry and the statement its signature covers without writing
+anything.</p>
+<p>A published package depends only on registry packages (not paths), and a
+version can never be changed or removed, only yanked.</p>
+<h3 id="what-a-packages-code-uses">What a package's code uses<a class="headerlink" href="#what-a-packages-code-uses" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="gp">$ </span>tagma<span class="w"> </span>caps
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="go">caps = ["File"]</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="gp">$ </span>tagma<span class="w"> </span>check<span class="w"> </span>--within<span class="w"> </span>none
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="go">error[E0400]: this function's `@cap(File)` needs the File capability, but this package is granted no capabilities</span>
+</code></pre></div>
+<p><code>tagma check --within &lt;caps&gt;</code> holds every file of the package to those
+capabilities, exactly as a project's grant would. <code>tagma caps</code> finds the
+smallest set the package compiles within: what its registry entry records.</p>
 <h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -3425,28 +3588,56 @@ versions and rewrites the lock first (<code>tagma fetch</code> does just that).<
 </thead>
 <tbody>
 <tr>
-<td><code>tagma add &lt;pkg&gt;[@&lt;version&gt;]</code></td>
-<td>Add a dependency</td>
+<td><code>tagma add &lt;ns/name&gt;[@&lt;version&gt;] [--as &lt;name&gt;] [--caps &lt;A,B&gt;\|none]</code></td>
+<td>Depend on a package, granting what it uses</td>
 </tr>
 <tr>
-<td><code>tagma remove &lt;pkg&gt;</code></td>
-<td>Remove one</td>
+<td><code>tagma remove &lt;name&gt;...</code></td>
+<td>Stop depending on a package (by import name or package)</td>
 </tr>
 <tr>
-<td><code>tagma update [&lt;pkg&gt;]</code></td>
-<td>Move to newer versions</td>
+<td><code>tagma update [&lt;name&gt;...]</code></td>
+<td>Move to the newest version of each major version</td>
 </tr>
 <tr>
-<td><code>tagma publish</code></td>
-<td>Publish a version (the Stenopos organization first)</td>
+<td><code>tagma fetch</code></td>
+<td>Update the index, select versions and fetch every package</td>
 </tr>
 <tr>
 <td><code>tagma vendor</code></td>
-<td>Copy dependencies into <code>vendor/</code> for offline builds</td>
+<td>Copy the packages into <code>vendor/</code> for builds with no network</td>
 </tr>
 <tr>
-<td><code>--locked</code>, <code>--offline</code></td>
-<td>Fail if <code>Tagma.lock</code> would change; never use the network</td>
+<td><code>tagma caps</code></td>
+<td>The capabilities the package's own code uses</td>
+</tr>
+<tr>
+<td><code>tagma check --within &lt;A,B&gt;\|none</code></td>
+<td>Check that the package's code stays within those capabilities</td>
+</tr>
+<tr>
+<td><code>tagma publish --registry &lt;checkout&gt; --key &lt;file&gt; --publisher &lt;name&gt; [--tag &lt;tag&gt;] [--dry-run]</code></td>
+<td>Write and sign this commit's registry entry (CI runs it)</td>
+</tr>
+<tr>
+<td><code>tagma registry check [&lt;dir&gt;] [--previous &lt;dir&gt;]</code></td>
+<td>Check a registry checkout: format, signatures, append-only history</td>
+</tr>
+<tr>
+<td><code>tagma registry verify [&lt;dir&gt;] [--previous &lt;dir&gt;]</code></td>
+<td>Re-derive each new entry from its source</td>
+</tr>
+<tr>
+<td><code>--locked</code></td>
+<td>Fail if <code>Tagma.lock</code> would change (for CI)</td>
+</tr>
+<tr>
+<td><code>--offline</code></td>
+<td>Use only the cache and <code>vendor/</code>; never the network</td>
+</tr>
+<tr>
+<td><code>--registry &lt;checkout&gt;</code></td>
+<td>Use a local registry checkout instead of the published index (checked the same way, except for the snapshot's expiry)</td>
 </tr>
 </tbody>
 </table>
