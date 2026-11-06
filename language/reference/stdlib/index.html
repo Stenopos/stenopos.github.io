@@ -3345,13 +3345,20 @@ release (pinned by <code>std.lock</code>). Import what you use by name:</p>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>int64 at = s.index_of("World")      // 7, or -1
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>bool st = s.starts_with("Hello")
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>str t = "  hi  ".trim()
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>str one = str_from_byte(72)         // "H": a one-byte string, from a byte 0-255
 </code></pre></div>
+<p>A <code>str</code> is a sequence of bytes (UTF-8 for text, but any bytes are allowed).
+<code>byte_at</code> reads one byte, and <code>str_from_byte</code> makes a one-byte string from a
+value 0-255 (any other value stops the program, like an index out of bounds).</p>
 <p>Everything else is in <code>std.string</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>import std.string.{contains, ends_with, to_upper, to_lower}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>import std.string.{contains, ends_with, to_upper, to_lower, from_code_point}
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>bool has = contains(s, "World")
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>str loud = to_upper(s)
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>str owl = from_code_point(0x1F989) ?? ""   // a Unicode character as UTF-8 (null if not one)
 </code></pre></div>
+<p><code>std.bytes.to_str</code> turns a byte list back into a string (any bytes), the
+inverse of <code>std.bytes.from_str</code>.</p>
 <div class="admonition note">
 <p class="admonition-title">Coming in 1.0</p>
 <p>After <code>import std.string</code>, its functions are also callable as methods
