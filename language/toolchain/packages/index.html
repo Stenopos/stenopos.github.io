@@ -1592,6 +1592,28 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#retracting-a-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retracting a version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-a-publisher-key-is-compromised" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When a publisher key is compromised
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#what-a-packages-code-uses" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3289,6 +3311,28 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#retracting-a-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retracting a version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-a-publisher-key-is-compromised" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When a publisher key is compromised
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#what-a-packages-code-uses" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3384,6 +3428,10 @@
         
         <ul>
           
+          <li><a href="#retracting-a-version">Retracting a version</a></li>
+          
+          <li><a href="#when-a-publisher-key-is-compromised">When a publisher key is compromised</a></li>
+          
           <li><a href="#what-a-packages-code-uses">What a package's code uses</a></li>
           
         </ul>
@@ -3406,7 +3454,7 @@
 
 
 <h1 id="packages-and-the-registry">Packages and the registry<a class="headerlink" href="#packages-and-the-registry" title="Permanent link">&para;</a></h1>
-<p class="sten-status-line"><span class="sten-status sten-status--designed">Designed</span></p>
+<p class="sten-status-line"><span class="sten-status sten-status--in-progress">In progress</span></p>
 
 <div class="admonition info">
 <p class="admonition-title">Ships in rc.6</p>
@@ -3421,14 +3469,14 @@ with v1.0.0-rc.6. Publishing is open to the Stenopos organization first.</p>
 <code>stenopos/dotenv@1.0.0</code>), writes one line to <code>Tagma.toml</code>, and grants the
 package the capabilities that it and its dependencies use:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">[dependencies]</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">dotenv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"stenopos/dotenv"</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"1.0.0"</span><span class="p">,</span><span class="w"> </span><span class="n">caps</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"File"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">dotenv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"stenopos/dotenv"</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"1.0.0"</span><span class="p">,</span><span class="w"> </span><span class="n">allow</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"File"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 <ul>
 <li><strong>Names are namespaced</strong> (<code>stenopos/json</code>), so nobody can squat a short
   name and you can see who owns a package. You import a package by the name
   on the left (<code>import dotenv.{load}</code>); <code>tagma add --as env</code> picks another.</li>
 <li><strong><code>version = "1.2"</code> means "at least 1.2.0"</strong> in the 1.x line.</li>
-<li><strong><code>--caps File,Network</code></strong> (or <code>--caps none</code>) grants exactly that instead;
+<li><strong><code>--allow File,Network</code></strong> (or <code>--allow none</code>) grants exactly that instead;
   if it is not enough for the package, <code>add</code> says which capability is
   missing and changes nothing.</li>
 <li>After every edit tagma selects versions, fetches each package and checks
@@ -3451,8 +3499,8 @@ yourself if you trust it.</p>
 <code>System</code>) are computed when it is published. In <code>Tagma.toml</code> you grant each
 dependency the capabilities it may use:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">[dependencies]</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"stenopos/json"</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"1.2"</span><span class="p">,</span><span class="w"> </span><span class="n">caps</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">files</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"stenopos/files"</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"1.0"</span><span class="p">,</span><span class="w"> </span><span class="n">caps</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"File"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"stenopos/json"</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"1.2"</span><span class="p">,</span><span class="w"> </span><span class="n">allow</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">files</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"stenopos/files"</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"1.0"</span><span class="p">,</span><span class="w"> </span><span class="n">allow</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"File"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 <p>If a new version of a JSON library suddenly wants <code>Network</code>, <strong>your build
 fails</strong> and names the package and the capability, instead of quietly giving
@@ -3479,8 +3527,9 @@ version that nobody asked for. Versions only move when you run
 <p>Precisely: a requirement <code>"1.2"</code> selects the lowest published 1.x version
 that is at least 1.2.0, and that version's own requirements are followed in
 turn. For each package and major version, the build uses the highest version
-reached. Yanked versions are skipped, unless <code>Tagma.lock</code> already names one.
-<code>tagma resolve</code> does this now and writes <code>Tagma.lock</code>:</p>
+reached. Retracted versions are skipped, unless <code>Tagma.lock</code> already names one.
+<code>tagma fetch</code> (and <code>add</code>, <code>update</code>, or any build whose lock no longer
+matches <code>Tagma.toml</code>) writes the result to <code>Tagma.lock</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">[[package]]</span>
@@ -3494,8 +3543,9 @@ reached. Yanked versions are skipped, unless <code>Tagma.lock</code> already nam
 </code></pre></div>
 <p>Each entry is a selected version with the commit and content hash its source
 must match, the capabilities its code uses, and the exact versions of its
-own dependencies. <code>tagma resolve --locked</code> fails instead of changing the
-lock, for CI.</p>
+own dependencies (<code>caps</code> here records what each package uses; <code>allow</code> in
+<code>Tagma.toml</code> is what you grant). With <code>--locked</code>, a command fails instead of
+changing the lock, for CI.</p>
 <h2 id="integrity-and-trust">Integrity and trust<a class="headerlink" href="#integrity-and-trust" title="Permanent link">&para;</a></h2>
 <ul>
 <li>The registry is a <strong>signed index</strong> (a git repository) recording each
@@ -3568,14 +3618,31 @@ and publishes the index. <code>tagma publish --dry-run --registry &lt;checkout&g
 shows the entry and the statement its signature covers without writing
 anything.</p>
 <p>A published package depends only on registry packages (not paths), and a
-version can never be changed or removed, only yanked.</p>
+version can never be changed or removed, only retracted. CI acts only on tags
+signed by a Stenopos release signer, at the commit being built: write
+access to a package's repository is not enough to publish.</p>
+<h3 id="retracting-a-version">Retracting a version<a class="headerlink" href="#retracting-a-version" title="Permanent link">&para;</a></h3>
+<p>A broken version is <strong>retracted</strong> by pushing a signed tag <code>retract/&lt;version&gt;</code>
+(<code>git tag -s retract/1.2.0</code>); CI runs <code>tagma retract</code>, which signs the retraction and
+commits it to the registry. A retracted version is never chosen for a new
+resolution (<code>add</code>, <code>update</code>), but a project whose <code>Tagma.lock</code> already names
+it keeps building.</p>
+<h3 id="when-a-publisher-key-is-compromised">When a publisher key is compromised<a class="headerlink" href="#when-a-publisher-key-is-compromised" title="Permanent link">&para;</a></h3>
+<p>The registry's root key revokes it from a date. Every version that key
+signed on or after that date is <strong>revoked</strong>: unlike a retracted version, it
+is refused even where <code>Tagma.lock</code> names it. Once your copy of the index
+updates (<code>tagma fetch</code>, <code>add</code>, <code>update</code>), a build with a revoked version
+locked stops and names it; <code>tagma fetch</code> moves you to a version that isn't
+revoked. Because the registry only accepts entries dated the day they are
+published, a stolen key can't slip in a version dated before its
+revocation.</p>
 <h3 id="what-a-packages-code-uses">What a package's code uses<a class="headerlink" href="#what-a-packages-code-uses" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="gp">$ </span>tagma<span class="w"> </span>caps
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="go">caps = ["File"]</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="gp">$ </span>tagma<span class="w"> </span>check<span class="w"> </span>--within<span class="w"> </span>none
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="gp">$ </span>tagma<span class="w"> </span>check<span class="w"> </span>--allow<span class="w"> </span>none
 <a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="go">error[E0400]: this function's `@cap(File)` needs the File capability, but this package is granted no capabilities</span>
 </code></pre></div>
-<p><code>tagma check --within &lt;caps&gt;</code> holds every file of the package to those
+<p><code>tagma check --allow &lt;A,B&gt;</code> holds every file of the package to those
 capabilities, exactly as a project's grant would. <code>tagma caps</code> finds the
 smallest set the package compiles within: what its registry entry records.</p>
 <h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
@@ -3588,7 +3655,7 @@ smallest set the package compiles within: what its registry entry records.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>tagma add &lt;ns/name&gt;[@&lt;version&gt;] [--as &lt;name&gt;] [--caps &lt;A,B&gt;\|none]</code></td>
+<td><code>tagma add &lt;ns/name&gt;[@&lt;version&gt;] [--as &lt;name&gt;] [--allow &lt;A,B&gt;\|none]</code></td>
 <td>Depend on a package, granting what it uses</td>
 </tr>
 <tr>
@@ -3612,12 +3679,16 @@ smallest set the package compiles within: what its registry entry records.</p>
 <td>The capabilities the package's own code uses</td>
 </tr>
 <tr>
-<td><code>tagma check --within &lt;A,B&gt;\|none</code></td>
-<td>Check that the package's code stays within those capabilities</td>
+<td><code>tagma check --allow &lt;A,B&gt;\|none</code></td>
+<td>Check that the package's own code needs only those capabilities</td>
 </tr>
 <tr>
 <td><code>tagma publish --registry &lt;checkout&gt; --key &lt;file&gt; --publisher &lt;name&gt; [--tag &lt;tag&gt;] [--dry-run]</code></td>
 <td>Write and sign this commit's registry entry (CI runs it)</td>
+</tr>
+<tr>
+<td><code>tagma retract &lt;version&gt; --registry &lt;checkout&gt; --key &lt;file&gt; --publisher &lt;name&gt;</code></td>
+<td>Retract a published version (CI runs it on a <code>retract/&lt;version&gt;</code> tag)</td>
 </tr>
 <tr>
 <td><code>tagma registry check [&lt;dir&gt;] [--previous &lt;dir&gt;]</code></td>

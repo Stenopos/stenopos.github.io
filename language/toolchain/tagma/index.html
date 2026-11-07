@@ -3334,8 +3334,8 @@
 <td>Build, then run</td>
 </tr>
 <tr>
-<td><code>tagma check [--within &lt;A,B&gt;\|none]</code></td>
-<td>Type-check without linking (<code>--within</code>: the project's own code may use only those capabilities)</td>
+<td><code>tagma check [--allow &lt;A,B&gt;\|none]</code></td>
+<td>Type-check without linking (<code>--allow</code>: the project's own code may use only those capabilities)</td>
 </tr>
 <tr>
 <td><code>tagma test</code></td>
@@ -3386,8 +3386,8 @@
 <td>Publish this commit as a registry version (CI runs it)</td>
 </tr>
 <tr>
-<td><code>tagma resolve [--locked]</code></td>
-<td>Select versions and write <code>Tagma.lock</code> from the index already fetched</td>
+<td><code>tagma retract &lt;version&gt;</code></td>
+<td>Retract a published version (CI runs it)</td>
 </tr>
 <tr>
 <td><code>tagma registry check [&lt;dir&gt;]</code></td>
