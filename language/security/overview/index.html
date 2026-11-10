@@ -3383,26 +3383,31 @@ rejects the program, rather than a runtime check catching it later.</p>
 <code>save</code>, which needs the File capability. The resources are <code>File</code>, <code>Process</code>,
 <code>Network</code>, <code>Memory</code> and <code>System</code>. A dependency can't quietly start using the
 network, because its callers would have to grant it.</p>
+<p>Each <code>@cap</code> names one capability; a function that needs several stacks
+one per line:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>@cap(File)
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>@cap(Process)
+</code></pre></div>
 <h2 id="constant-time-secrets">Constant-time secrets<a class="headerlink" href="#constant-time-secrets" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>func main() -&gt; int32 {
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    secret[int32] key = secret(42)
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    secret[int32] mixed = wrapping_add(key, secret(8))
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    // if (key == 42) { ... }   // error: a secret value may not drive a branch
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    // key + 8                  // error: a checked `+` would branch on its overflow
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    return 0
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>func main() -&gt; int32 {
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    secret[int32] key = secret(42)
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    secret[int32] mixed = wrapping_add(key, secret(8))
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    // if (key == 42) { ... }   // error: a secret value may not drive a branch
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    // key + 8                  // error: a checked `+` would branch on its overflow
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    return 0
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>}
 </code></pre></div>
 <p>Arithmetic on secrets is modular: use <code>wrapping_add</code>, <code>wrapping_sub</code> and
 <code>wrapping_mul</code>. A checked <code>+</code>, <code>-</code> or <code>*</code> branches on its overflow, and with a
 secret operand that branch would leak it. Dividing by a secret, indexing with
 one and shifting by one are errors for the same reason.</p>
 <h2 id="sensitive-data">Sensitive data<a class="headerlink" href="#sensitive-data" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>func main() -&gt; int32 {
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    @sensitive str password = "hunter2"
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    println(password)
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    return 0
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>}
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>// the buffer holding the password is wiped before it is freed
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>func main() -&gt; int32 {
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    @sensitive str password = "hunter2"
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    println(password)
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    return 0
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>}
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>// the buffer holding the password is wiped before it is freed
 </code></pre></div>
 <h2 id="coming">Coming<a class="headerlink" href="#coming" title="Permanent link">&para;</a></h2>
 <ul>

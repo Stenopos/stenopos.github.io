@@ -1732,10 +1732,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-inside-brackets-and" class="md-nav__link">
+  <a href="#2-before-an-operator-that-cant-start-a-statement" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Inside brackets ( … ) and [ … ]
+        2. Before an operator that can't start a statement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-inside-brackets-and" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Inside brackets ( … ) and [ … ]
       
     </span>
   </a>
@@ -3220,10 +3231,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-inside-brackets-and" class="md-nav__link">
+  <a href="#2-before-an-operator-that-cant-start-a-statement" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Inside brackets ( … ) and [ … ]
+        2. Before an operator that can't start a statement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-inside-brackets-and" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Inside brackets ( … ) and [ … ]
       
     </span>
   </a>
@@ -3294,7 +3316,9 @@
           
           <li><a href="#1-after-an-operator-that-needs-a-right-hand-side">1. After an operator that needs a right-hand side</a></li>
           
-          <li><a href="#2-inside-brackets-and">2. Inside brackets ( … ) and [ … ]</a></li>
+          <li><a href="#2-before-an-operator-that-cant-start-a-statement">2. Before an operator that can't start a statement</a></li>
+          
+          <li><a href="#3-inside-brackets-and">3. Inside brackets ( … ) and [ … ]</a></li>
           
         </ul>
         
@@ -3331,9 +3355,9 @@ significant (blocks are delimited by braces), but 4-space indentation is the
 convention.</p>
 <h2 id="breaking-a-long-line">Breaking a long line<a class="headerlink" href="#breaking-a-long-line" title="Permanent link">&para;</a></h2>
 <p>A newline ends a statement <em>only</em> when the line so far could be a complete
-statement. In the two situations below the newline is treated as a space and the
-statement continues — the same rule Go uses. There is no line-continuation
-character (a <code>\</code> is not special here).</p>
+statement, and the next line couldn't start one. In the three situations below
+the newline is treated as a space and the statement continues. There is no
+line-continuation character (a <code>\</code> is not special here).</p>
 <h3 id="1-after-an-operator-that-needs-a-right-hand-side">1. After an operator that needs a right-hand side<a class="headerlink" href="#1-after-an-operator-that-needs-a-right-hand-side" title="Permanent link">&para;</a></h3>
 <p>A line that ends on an operator which cannot finish a statement — a binary,
 comparison, logical, bitwise, or assignment operator, <code>??</code>, a trailing <code>.</code>, or
@@ -3347,13 +3371,22 @@ comparison, logical, bitwise, or assignment operator, <code>??</code>, a trailin
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    // ...
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>}
 </code></pre></div>
-<p>Method-call chains break the same way, on a <strong>trailing</strong> <code>.</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>str result = name.trim().
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    to_upper()
+<h3 id="2-before-an-operator-that-cant-start-a-statement">2. Before an operator that can't start a statement<a class="headerlink" href="#2-before-an-operator-that-cant-start-a-statement" title="Permanent link">&para;</a></h3>
+<p>A line that <strong>starts</strong> with such an operator — <code>+</code>, <code>/</code>, <code>%</code>, a comparison,
+<code>&amp;&amp;</code>, <code>||</code>, <code>^</code>, <code>&lt;&lt;</code>, <code>&gt;&gt;</code>, <code>??</code>, <code>.</code> or <code>?.</code> — continues the line above. This is
+the natural way to break a long expression or a method chain:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>str message = "backup "
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    + name
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    + " finished"
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>str result = name
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    .trim()
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    .to_upper()
 </code></pre></div>
-<p>(The <code>.</code> must end the upper line. A line that ends on a complete value — e.g.
-<code>name.trim()</code> — terminates, so a <code>.method()</code> cannot <em>start</em> the next line.)</p>
-<h3 id="2-inside-brackets-and">2. Inside brackets <code>(</code> … <code>)</code> and <code>[</code> … <code>]</code><a class="headerlink" href="#2-inside-brackets-and" title="Permanent link">&para;</a></h3>
+<p>A line starting with <code>-</code>, <code>*</code> or <code>&amp;</code> begins a new statement, since one can
+(<code>-n</code> is an expression, <code>*p = 3</code> a store). Break those after the operator
+instead. A blank line, or a line holding only a comment, ends the statement.</p>
+<h3 id="3-inside-brackets-and">3. Inside brackets <code>(</code> … <code>)</code> and <code>[</code> … <code>]</code><a class="headerlink" href="#3-inside-brackets-and" title="Permanent link">&para;</a></h3>
 <p>Newlines between a matching <code>(</code>/<code>)</code> or <code>[</code>/<code>]</code> are ignored, so call arguments,
 function parameters, array/list literals, and parenthesized expressions may span
 lines:</p>

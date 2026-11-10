@@ -3189,7 +3189,28 @@ Below 1× means Stenopos uses less than C.</p>
 <li><strong>Build:</strong> the instructions to build it, from source to executable,
   including LLVM, the C compiler and the linker.</li>
 </ul>
-<p>No release has published benchmark numbers yet.</p>
+<table>
+<thead>
+<tr>
+<th>Release</th>
+<th>Date</th>
+<th>Binary size</th>
+<th>Run</th>
+<th>Peak memory</th>
+<th>Build</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Stenopos/Syntagma/releases/tag/v1.0.0-rc.6">v1.0.0-rc.6</a></td>
+<td>2026-11-10</td>
+<td>0.99×</td>
+<td>0.99×</td>
+<td>1.10×</td>
+<td>0.55×</td>
+</tr>
+</tbody>
+</table>
 <p>Each release's notes and announcement show the full table, program by
 program, and what moved since the release before.</p>
 <h2 id="how-its-measured">How it's measured<a class="headerlink" href="#how-its-measured" title="Permanent link">&para;</a></h2>
@@ -3209,7 +3230,8 @@ program, and what moved since the release before.</p>
 <li><strong>Budgets.</strong> Our targets relative to C are written down: binary size,
   run and peak memory within 1.5× of C, build within 2×. The release notes
   list every program over its budget. A budget becomes a hard gate once
-  it's met.</li>
+  it's met: since rc.6, size, build and run are gates; peak memory, which
+  varies more from run to run, is still only reported.</li>
 </ul>
 <p>The programs, the scripts and the recorded numbers are in the
 <a href="https://github.com/Stenopos/Syntagma/tree/main/tests/bench">Syntagma repository</a>.</p>

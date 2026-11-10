@@ -3414,16 +3414,22 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>int32 abs_x = if (x &gt;= 0) x else -x
 </code></pre></div>
 <h2 id="for-loops">For loops<a class="headerlink" href="#for-loops" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>// inclusive range (0 through 9)
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>for (i in 0..9) {
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>// 0 through 9: `..&lt;` stops before its end
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>for (i in 0..&lt;10) {
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    println("{i}")
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>}
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>// exclusive range (0 through 9, not 10)
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>for (i in 0..&lt;10) {
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>// 0 through 10: `..` includes its end
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>for (i in 0..10) {
 <a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    println("{i}")
 <a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>}
 </code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title"><code>a..b</code> includes <code>b</code></p>
+<p>Unlike Python's <code>range</code>, Rust's <code>..</code> or Go's <code>for i := 0; i &lt; n</code>, the
+range <code>0..n</code> runs <code>n + 1</code> times. To loop over the indexes of a list or
+string, use <code>0..&lt;n</code>.</p>
+</div>
 <h2 id="while">While<a class="headerlink" href="#while" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>while (counter &lt; 100) {
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    counter = counter + 1
