@@ -1759,6 +1759,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#string-literals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        String literals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#comparing-strings" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3263,6 +3274,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#string-literals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        String literals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#comparing-strings" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3379,6 +3401,8 @@
       
         
       
+        
+      
     
   
   
@@ -3391,6 +3415,10 @@
       </li>
       
       <li><a href="#mutable-by-default">Mutable by default</a>
+        
+      </li>
+      
+      <li><a href="#string-literals">String literals</a>
         
       </li>
       
@@ -3451,6 +3479,52 @@
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>counter = counter + 1   // ok
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>// MAX = 200            // compile error
 </code></pre></div>
+<h2 id="string-literals">String literals<a class="headerlink" href="#string-literals" title="Permanent link">&para;</a></h2>
+<p>A string is UTF-8 text in double quotes. <code>{expr}</code> inside one is an
+interpolation: the expression's value, converted to text. A string may span
+lines; its newlines are part of it.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>str name = "Ada"
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>println("Hello, {name}! {2 + 3} unread")
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Escape</th>
+<th>Means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\n</code> <code>\t</code> <code>\r</code></td>
+<td>newline, tab, carriage return</td>
+</tr>
+<tr>
+<td><code>\0</code></td>
+<td>a NUL byte</td>
+</tr>
+<tr>
+<td><code>\\</code> <code>\"</code> <code>\'</code></td>
+<td>a backslash, a double quote, a single quote</td>
+</tr>
+<tr>
+<td><code>\{</code> <code>\}</code></td>
+<td>literal braces (not an interpolation)</td>
+</tr>
+<tr>
+<td><code>\xNN</code></td>
+<td>the byte <code>NN</code>, two hex digits: <code>"\x1b[0m"</code> (from rc.7)</td>
+</tr>
+<tr>
+<td><code>\u{H}</code></td>
+<td>the Unicode character <code>H</code>, 1 to 6 hex digits, as UTF-8: <code>"caf\u{e9}"</code> (from rc.7)</td>
+</tr>
+</tbody>
+</table>
+<p>Any other escape is an error (from rc.7; earlier releases dropped the
+backslash). Inside <code>{ }</code> you write code, not string text, so a string there
+takes plain quotes: <code>"{m.get("a")}"</code>, never <code>\"</code>.</p>
+<p>A character literal in single quotes, <code>'a'</code> or <code>'\n'</code>, is one byte (an
+<code>int32</code>): <code>'\x41'</code> and <code>'\u{7a}'</code> work, <code>'\u{e9}'</code> (two bytes) does not.</p>
 <h2 id="comparing-strings">Comparing strings<a class="headerlink" href="#comparing-strings" title="Permanent link">&para;</a></h2>
 <p><code>==</code> and <code>!=</code> compare strings by content, and <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code> order them
 byte by byte, the way C's <code>strcmp</code> and Go do: <code>"apple" &lt; "banana"</code>, a prefix
@@ -3501,16 +3575,16 @@ below zero is an overflow.</p>
 <p>Integer literals can be written in decimal, hex (<code>0x</code>) or binary (<code>0b</code>), and
 hex and binary may use <code>_</code> to group digits (<code>_</code> in decimal literals is coming in
 1.0). A literal takes the type of the integer it is used with:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>func main() -&gt; int32 {
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    uint64 mask = 0xffff_ffff_0000_0000
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    uint32 flags = 0b1010
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    println("{mask &gt;&gt; 32} {flags % 4}")
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    return 0
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>func main() -&gt; int32 {
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    uint64 mask = 0xffff_ffff_0000_0000
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    uint32 flags = 0b1010
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    println("{mask &gt;&gt; 32} {flags % 4}")
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    return 0
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>}
 </code></pre></div>
 <p>No implicit numeric conversions. Use <code>cast[T]()</code> to convert explicitly:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>int32 x = 42
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>int64 y = cast[int64](x)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>int32 x = 42
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>int64 y = cast[int64](x)
 </code></pre></div>
 <h2 id="integer-overflow-is-checked">Integer overflow is checked<a class="headerlink" href="#integer-overflow-is-checked" title="Permanent link">&para;</a></h2>
 <p>Arithmetic that overflows its type is a bug — and a frequent source of security
@@ -3518,8 +3592,8 @@ holes, where a wrapped size calculation leads to an undersized buffer. Stenopos
 does not let it happen silently. Every <code>+</code>, <code>-</code>, and <code>*</code> on an integer (signed or
 unsigned) is checked; if the result does not fit the type, the program stops with
 a diagnostic instead of wrapping to a wrong value:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>int32 x = 2147483647    // int32 max
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>int32 y = x + 1         // aborts: "integer overflow: add of two int32 values"
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>int32 x = 2147483647    // int32 max
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>int32 y = x + 1         // aborts: "integer overflow: add of two int32 values"
 </code></pre></div>
 <p>This applies to compound assignments (<code>+=</code>, <code>-=</code>, <code>*=</code>) too. In-range arithmetic
 is unaffected, and the check is cheap — it compiles to an add plus a
@@ -3528,22 +3602,22 @@ jump-on-overflow, not a software division.</p>
 <p>Some algorithms <em>want</em> modular arithmetic — hashes, checksums, PRNGs, ring-buffer
 indices. For those, ask for wrapping explicitly with <code>wrapping_add</code>,
 <code>wrapping_sub</code>, and <code>wrapping_mul</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>// FNV-1a hash — defined in terms of wrapping arithmetic, so it says so.
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>func fnv1a(str s) -&gt; uint32 {
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    uint32 hash = 2166136261
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    int64 i = 0
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    while (i &lt; s.len()) {
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        hash = wrapping_mul(hash, 16777619)
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        hash = wrapping_add(hash, cast[uint32](s.byte_at(i)))
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        i += 1
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    }
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    return hash
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>// FNV-1a hash — defined in terms of wrapping arithmetic, so it says so.
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>func fnv1a(str s) -&gt; uint32 {
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    uint32 hash = 2166136261
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    int64 i = 0
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    while (i &lt; s.len()) {
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        hash = wrapping_mul(hash, 16777619)
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>        hash = wrapping_add(hash, cast[uint32](s.byte_at(i)))
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>        i += 1
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    }
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    return hash
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>}
 </code></pre></div>
 <p>The default is safe; wrapping is opt-in and visible at the call site.</p>
 <h2 id="arrays">Arrays<a class="headerlink" href="#arrays" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>int64[5] numbers = [1, 2, 3, 4, 5]
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>int64 first = numbers[0]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>int64[5] numbers = [1, 2, 3, 4, 5]
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>int64 first = numbers[0]
 </code></pre></div>
 <p>Every index is bounds-checked: an index out of range stops the program instead
 of reading or writing memory it shouldn't. The C-style declaration
@@ -3551,42 +3625,42 @@ of reading or writing memory it shouldn't. The C-style declaration
 <h2 id="nullable-types">Nullable types<a class="headerlink" href="#nullable-types" title="Permanent link">&para;</a></h2>
 <p>Any type <code>T</code> has a nullable form <code>T?</code> that holds either a value or <code>null</code>. The
 compiler will not let you use a <code>T?</code> as a <code>T</code> until you have ruled out null.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>int32? maybe = null
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>str? name = "Stenopos"
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>int32? maybe = null
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>str? name = "Stenopos"
 </code></pre></div>
 <p>Compare against <code>null</code> with <code>==</code> / <code>!=</code>. After a check, the value is <strong>narrowed</strong>
 to the non-nullable type for the rest of that scope:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>func classify(int32? n) -&gt; str {
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    if (n == null) {
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>        return "none"
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    }
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    // n is narrowed to plain int32 here
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    return "value: {n}"
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>func classify(int32? n) -&gt; str {
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    if (n == null) {
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>        return "none"
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    }
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    // n is narrowed to plain int32 here
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    return "value: {n}"
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>}
 </code></pre></div>
 <p>Narrowing also follows <code>&amp;&amp;</code> and <code>||</code>: the right side of <code>x != null &amp;&amp; ...</code>
 only runs when <code>x</code> isn't null, and the right side of <code>x == null || ...</code> only
 when it isn't either, so both see <code>x</code> as non-null. An <code>if</code> whose condition is
 such a chain narrows its branches the same way:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>if (port != null &amp;&amp; port &gt; 1024) {
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    listen(port)
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>}
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>if (a == null || b == null) {
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    return 0
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>}
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>return a + b        // both narrowed: the `if` returned otherwise
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>if (port != null &amp;&amp; port &gt; 1024) {
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    listen(port)
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>}
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>if (a == null || b == null) {
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    return 0
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>}
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>return a + b        // both narrowed: the `if` returned otherwise
 </code></pre></div>
 <p>Three operators work on nullables:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>int32? missing = null
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>int32 x = missing ?? 0          // ?? — fallback when the left side is null
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>int32? forced = 7
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>int32 y = forced!!              // !! — assert non-null (aborts at runtime if null)
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>int64 len = name?.len() ?? 0    // ?. — safe access, yields a nullable
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>int32? missing = null
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>int32 x = missing ?? 0          // ?? — fallback when the left side is null
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>int32? forced = 7
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>int32 y = forced!!              // !! — assert non-null (aborts at runtime if null)
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>int64 len = name?.len() ?? 0    // ?. — safe access, yields a nullable
 </code></pre></div>
 <p><code>??</code> evaluates its right side only when the left side is null, so a default
 can be a call: <code>cached ?? load()</code> loads only on a miss. Fallbacks chain,
 tried left to right, and the chain ends with a value that can't be null:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>str shown = nickname ?? full_name ?? "anonymous"
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>str shown = nickname ?? full_name ?? "anonymous"
 </code></pre></div>
 <p>The left side of <code>??</code> must be able to be null. After <code>if (n == null) { ... }</code>
 returns, <code>n</code> is known not to be null, so <code>n ?? 0</code> is an error: write <code>n</code>.</p>
@@ -3595,13 +3669,13 @@ returns, <code>n</code> is known not to be null, so <code>n ?? 0</code> is an er
 <h2 id="type-aliases">Type aliases<a class="headerlink" href="#type-aliases" title="Permanent link">&para;</a></h2>
 <p>A type alias gives a type a second name. It is declared at the top level of
 a module:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>type Meters = float64
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>type Scores = List[float64]
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>type Index[V] = HashMap[str, V]     // a generic alias
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>type MaybeId = uint64?
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>Meters distance = 100.0
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>Index[int32] ages = map_new()
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>type Meters = float64
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>type Scores = List[float64]
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>type Index[V] = HashMap[str, V]     // a generic alias
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>type MaybeId = uint64?
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>Meters distance = 100.0
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>Index[int32] ages = map_new()
 </code></pre></div>
 <p>An alias is <strong>transparent</strong>: <code>Meters</code> <em>is</em> <code>float64</code>, so a <code>Meters</code> passes
 anywhere a <code>float64</code> is expected and back, with no cast. Use an alias to make
