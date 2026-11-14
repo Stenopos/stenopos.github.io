@@ -3280,7 +3280,17 @@ release (pinned by <code>std.lock</code>). Import what you use by name:</p>
 </tr>
 <tr>
 <td><code>std.os</code></td>
-<td>Processes and arguments: run, run_ok, args, has_flag</td>
+<td>Programs without a shell (<code>execute</code>, <code>execute_with</code> → code, stdout, stderr), the environment, signals (<code>watch_signals</code>, <code>wait_signal</code>, or into a channel with <code>notify_signals</code>), <code>exit</code>, arguments; <code>run</code> for the shell</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.fs</code></td>
+<td>Files and directories without a shell: <code>read</code> (null when missing), <code>write_atomic</code>, <code>list_dir</code>, <code>stat</code>, <code>exists</code>, <code>mkdir_all</code>, <code>rename</code>, <code>remove</code>, <code>remove_all</code>, <code>chmod</code>, <code>temp_dir</code>, <code>set_umask</code></td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.time</code></td>
+<td>Clocks (<code>unix</code>, <code>mono_ms</code>), <code>sleep_ms</code> (a sleeping task lets the others run), UTC and local formatting, RFC 3339</td>
 <td>✓</td>
 </tr>
 <tr>
@@ -3350,13 +3360,18 @@ release (pinned by <code>std.lock</code>). Import what you use by name:</p>
 </tr>
 <tr>
 <td><code>std.net</code></td>
-<td>Blocking TCP sockets</td>
-<td>not yet</td>
+<td>TCP by name, IPv4 or IPv6: <code>connect</code>, <code>connect_timeout</code>, <code>listen</code>, <code>accept</code>, <code>recv_timeout</code>, <code>poll</code>, <code>resolve</code>; failures throw with the reason</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>std.tls</code></td>
+<td>TLS client connections with the system's OpenSSL (loaded when first used): <code>verified()</code> (CAs and host name) or <code>pinned(sha256)</code> (a self-signed device)</td>
+<td>✓</td>
 </tr>
 <tr>
 <td><code>std.http</code></td>
-<td>Parsing an HTTP/1.1 request line, building a response</td>
-<td>not yet</td>
+<td>HTTP/1.1 server (<code>serve(conn, limits)</code>, keep-alive, size limits, slow-client deadline) and client (<code>get</code>, <code>post</code>, <code>post_json</code>, <code>fetch</code>; http and https, chunked responses)</td>
+<td>✓</td>
 </tr>
 <tr>
 <td><code>std.kernel</code></td>

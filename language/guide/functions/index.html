@@ -1809,6 +1809,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#what-the-compiler-checks-and-what-it-works-out" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the compiler checks, and what it works out
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#coming-in-10" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3235,6 +3246,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#what-the-compiler-checks-and-what-it-works-out" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the compiler checks, and what it works out
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#coming-in-10" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3273,6 +3295,8 @@
       
         
       
+        
+      
     
   
   
@@ -3293,6 +3317,10 @@
       </li>
       
       <li><a href="#methods">Methods</a>
+        
+      </li>
+      
+      <li><a href="#what-the-compiler-checks-and-what-it-works-out">What the compiler checks, and what it works out</a>
         
       </li>
       
@@ -3374,6 +3402,57 @@ it, since the call through the value isn't checked again. Generic and
 <a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    }
 <a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>}
 </code></pre></div>
+<h2 id="what-the-compiler-checks-and-what-it-works-out">What the compiler checks, and what it works out<a class="headerlink" href="#what-the-compiler-checks-and-what-it-works-out" title="Permanent link">&para;</a></h2>
+<p>C compilers let you describe a function to the optimizer with attributes:
+GCC's <code>pure</code>, <code>const</code>, <code>malloc</code>, <code>nonnull</code>, <code>access(read_only, ...)</code>. Those
+are <strong>promises the compiler trusts</strong>: mark a function <code>const</code> when it does
+read memory, and the program is silently miscompiled. Stenopos has no
+annotation whose mistake is undefined behaviour. Each one is one of three
+kinds:</p>
+<p><strong>Checked guarantees.</strong> You declare them; the compiler proves them, through
+every call, and refuses the program when they don't hold. They are part of
+the function's contract, and a caller relies on them.</p>
+<table>
+<thead>
+<tr>
+<th>Annotation</th>
+<th>What is guaranteed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@cap(File)</code>, <code>@cap(Network)</code>...</td>
+<td>The function (and what it calls) uses only the capabilities it names; a caller must hold them too.</td>
+</tr>
+<tr>
+<td><code>@pure</code> / <code>@io</code> / <code>@net</code></td>
+<td>Its effects: <code>@pure</code> does no I/O at all, <code>@io</code> touches files and the console, <code>@net</code> the network.</td>
+</tr>
+<tr>
+<td><code>@no_return</code></td>
+<td>It never returns: a <code>return</code> in it is a compile error, and running off its end stops the program rather than continuing.</td>
+</tr>
+<tr>
+<td><code>@secret</code></td>
+<td>A secret value may not decide a branch (that would leak it through timing).</td>
+</tr>
+<tr>
+<td><code>@sensitive</code></td>
+<td>The value's memory is wiped when it is freed.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Hints.</strong> You declare them; they change speed or layout, never meaning, so
+a wrong hint costs time, not correctness: <code>@inline</code>, <code>@hot</code>, <code>@cold</code>,
+<code>@section("name")</code>.</p>
+<p><strong>Inferred facts.</strong> You write nothing; the compiler works them out (whether
+a function allocates, which memory it reads or writes) and tells the
+optimizer, so you get what GCC's memory attributes give, with no way to get
+them wrong. <em>Planned after 1.0, measured by the benchmark gate.</em></p>
+<p>What comes next follows the same rule. <code>@noalloc</code>, a checked guarantee that
+a function and everything it calls never allocate (for interrupt handlers,
+real-time paths and kernel code), is designed for the kernel milestones; the
+memory facts above will be inferred, not declared.</p>
 <h2 id="coming-in-10">Coming in 1.0<a class="headerlink" href="#coming-in-10" title="Permanent link">&para;</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Not implemented yet</p>
