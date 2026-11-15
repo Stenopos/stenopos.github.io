@@ -3223,8 +3223,12 @@
 </thead>
 <tbody>
 <tr>
-<td>Source code</td>
+<td>Source code we write from specifications: the language, the toolchain, the standard library, the kernel, the cryptography, and most of the system</td>
 <td><strong>MIT OR Apache-2.0</strong>, at your option</td>
+</tr>
+<tr>
+<td>A component rewritten in Stenopos from another project's source (a driver rewritten from Linux, for example)</td>
+<td><strong>That project's licence</strong> (GPL-2.0 in that example), stated with the component</td>
 </tr>
 <tr>
 <td>This documentation, and the specifications published with the code (interface definitions, Kanon device descriptions, formal specifications and proofs)</td>
@@ -3233,6 +3237,12 @@
 </tbody>
 </table>
 <p>Contributions are accepted under the same terms.</p>
+<p>Stenopos OS is therefore under several open-source licences, as a Linux
+distribution is. Two rules keep that simple: a component under a copyleft
+licence is always a separate program in its own compartment, never linked
+into another; and nothing of the kind is ever part of the toolchain or the
+standard library, so a program you build with Stenopos carries only the
+licence you choose for it.</p>
 <h2 id="the-name">The name<a class="headerlink" href="#the-name" title="Permanent link">&para;</a></h2>
 <p>The "Stenopos OS" name and logo are covered by a trademark policy. Forks are
 welcome, but only builds that can be verified through the official build
