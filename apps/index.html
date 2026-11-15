@@ -3083,6 +3083,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#publishing-your-own" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Publishing your own
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-every-app-gets" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3115,6 +3126,8 @@
       
         
       
+        
+      
     
   
   
@@ -3123,6 +3136,10 @@
     <ul class="sten-toc__list">
       
       <li><a href="#planned">Planned</a>
+        
+      </li>
+      
+      <li><a href="#publishing-your-own">Publishing your own</a>
         
       </li>
       
@@ -3200,18 +3217,35 @@ written for it in Stenopos:</p>
   contacts, notes, tasks, a system monitor that shows what each app can
   touch, disks, printers and scanners, a camera, offline help, a screen
   reader, magnifier and on-screen keyboard, and fonts.</li>
-<li><strong>Soon after:</strong> an <strong>office suite</strong> (documents, spreadsheets,
+<li>
+<p><strong>Soon after:</strong> an <strong>office suite</strong> (documents, spreadsheets,
   presentations, using OpenDocument and reading and writing Word, Excel
   and PowerPoint files), photos, music and recording, maps and weather,
   remote desktop, virtual machines, calls, a firewall and VPN, an
-  authenticator, books, and developer tools.</li>
+  authenticator, books, and developer tools.</p>
+</li>
+<li>
+<p><strong>Typesetting:</strong> engines of our own that run LaTeX documents (with the
+  existing LaTeX packages unchanged) and Typst documents, and a
+  collaborative editor for them that also works offline.</p>
+</li>
 </ul>
-<p>Software that already exists elsewhere is not ported into the system. Each
-piece is written from its public specification and tested against the
-original until the results agree. Until one of ours is ready, you can
-install the original as an ordinary, confined app: LibreOffice, Chromium,
-Firefox, and <strong>Signal Desktop</strong>. Signal's protocol is public, and a native
-Signal client is planned inside Keryx.</p>
+<p>Software that already exists elsewhere is <strong>rewritten in Stenopos</strong>, not
+carried over as C or C++: redesigned so each part holds only the
+permissions it needs, with the bugs found on the way fixed, and tested
+against the original until the results agree. Where a part is rewritten
+from another project's source it keeps that project's licence (a driver
+rewritten from Linux stays GPL), so the system as a whole is under several
+open-source licences, each part stating its own.</p>
+<p>Until one of ours is ready, you can install the original as an ordinary,
+confined app: LibreOffice, Chromium, Firefox, and <strong>Signal Desktop</strong>.
+Signal's protocol is public, and a native Signal client is planned inside
+Keryx.</p>
+<h2 id="publishing-your-own">Publishing your own<a class="headerlink" href="#publishing-your-own" title="Permanent link">&para;</a></h2>
+<p>Anyone can publish a program for Stenopos OS, with no permission from
+anyone: from your own site or repository, signed with your own key, or
+through Agora for a listing. Either way, the person installing it sees
+exactly what it asks to touch first, and it gets nothing else.</p>
 <h2 id="what-every-app-gets">What every app gets<a class="headerlink" href="#what-every-app-gets" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Only what it declares.</strong> An app's manifest lists its capabilities, and
