@@ -3157,8 +3157,21 @@ These pages explain the design.</p>
 </div>
 <h2 id="the-design-in-brief">The design in brief<a class="headerlink" href="#the-design-in-brief" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>A small verified core.</strong> The nucleus (L0) is the only code with full
-  control of the hardware, and it is formally verified.</li>
+<li>
+<p><strong>Written by us, in Stenopos.</strong> The boot loader, the nucleus, the
+  drivers, the services, the shell, the desktop, its toolkit and the web
+  engine are all written for this OS in one memory-safe language. Nothing
+  in the system image is a port of someone else's C or C++. The few things
+  that cannot be ours (hardware firmware, standard data such as Unicode
+  tables and root certificates, fonts) are signed, converted to our own
+  checked formats at build time, and treated as untrusted input. Software
+  you install yourself (a Linux or Windows program, another browser) runs
+  confined, outside the system.</p>
+</li>
+<li>
+<p><strong>A small verified core.</strong> The nucleus (L0) is the only code with full
+  control of the hardware, and it is formally verified.</p>
+</li>
 <li><strong>Everything else in compartments.</strong> Drivers, filesystems, the network
   stack and the syscall layer each run in their own hardware-isolated
   compartment. A bug in one cannot reach the others.</li>

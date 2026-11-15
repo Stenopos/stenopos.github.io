@@ -3241,31 +3241,12 @@
 <h1 id="periplus">Periplus<a class="headerlink" href="#periplus" title="Permanent link">&para;</a></h1>
 <p class="sten-status-line"><span class="sten-status sten-status--designed">Designed</span></p>
 
-<p>Stenopos OS offers three browsers, all first-class:</p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>What it is</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Chromium</strong></td>
-<td>A native port, pre-selected as the default</td>
-</tr>
-<tr>
-<td><strong>Firefox</strong></td>
-<td>A native port, offered with equal standing at setup</td>
-</tr>
-<tr>
-<td><strong>Periplus</strong></td>
-<td>A new, memory-safe browser engine written in Stenopos</td>
-</tr>
-</tbody>
-</table>
-<p>Either of the first two can be removed, and both also run unmodified in a
-Linux environment from day one.</p>
+<p><strong>Periplus</strong> is the web engine of Stenopos OS: new, memory-safe, written in
+Stenopos, and the only engine in the system. Like the rest of the OS, it is
+ours.</p>
+<p>Chromium and Firefox are not part of the system. You can install either as
+an app, confined like any other software you add, and both also run
+unmodified in a Linux environment.</p>
 <h2 id="double-sandboxing">Double sandboxing<a class="headerlink" href="#double-sandboxing" title="Permanent link">&para;</a></h2>
 <p>On Stenopos OS every site's renderer holds an <strong>empty capability set</strong>: no
 file, network, device or IPC access except channels to the browser's own
@@ -3311,13 +3292,14 @@ OS as soon as it is ready:</p>
 </tr>
 </tbody>
 </table>
-<p>Periplus becomes an optional browser, then the system web view's engine,
-then the default, each step only when measured results (Web Platform Tests
-and a top-sites corpus) say it is ready.</p>
+<p>Periplus is the system's browser and its web view's engine from the first
+release that has one. What it can render grows release by release, measured
+by Web Platform Tests and a corpus of top sites.</p>
 <h2 id="periplus-webview">Periplus WebView<a class="headerlink" href="#periplus-webview" title="Permanent link">&para;</a></h2>
 <p>Apps that show web content use the <strong>system web view</strong>, a shared runtime
-patched once for every app. Its API doesn't depend on the engine: it starts
-on Chromium and can switch to Periplus with no change for apps.</p>
+patched once for every app. It is Periplus. An app that needs something
+Periplus can't render yet says so; the system never falls back to a
+foreign engine behind your back.</p>
 
 
 

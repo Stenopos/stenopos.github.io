@@ -3231,13 +3231,20 @@
 <p>The desktop is inspired by GNOME by default (a top bar, an overview, a dash
 and dynamic workspaces) and ships <strong>five layouts</strong>: Activities, Classic,
 Dock, Tiling and Tablet.</p>
-<p>Customization comes in three levels:</p>
-<ol>
-<li><strong>Themes</strong>, which are data and never code.</li>
-<li><strong>Layouts and panels</strong>, composed from parts.</li>
-<li><strong>Extensions</strong>, which are signed, sandboxed <code>.pano</code> processes using a
-   capability-scoped API, not code injected into the shell.</li>
-</ol>
+<p><strong>Everything about how the desktop looks and is laid out is a setting.</strong>
+Colours, fonts, icons, spacing, corners, shadows, animations, panels,
+docks, widgets, gestures, keybindings, window rules and the layouts
+themselves are changed live in Settings, with a preview and an undo.
+There is nothing to install: no theme engine, no tweak tool.</p>
+<ul>
+<li>A <strong>theme</strong> is only a saved snapshot of those settings. You can export
+  one and share it; importing one changes settings and can never run code.</li>
+<li><strong>Extensions</strong> add new behaviour (a widget, a search provider). They are
+  signed, sandboxed <code>.pano</code> processes using a capability-scoped API, not
+  code injected into the shell, and nobody needs one to restyle anything.</li>
+<li>The trusted parts of the screen (app identity, privacy indicators, file
+  pickers) can't be restyled or covered by any setting.</li>
+</ul>
 <p><strong>Morphe</strong>, the native UI toolkit, renders through Eikon and exposes an
 accessibility tree for every widget. <strong>Accessibility is first-class</strong>, and
 so is internationalization: UTF-8 everywhere with spoofing detection,
