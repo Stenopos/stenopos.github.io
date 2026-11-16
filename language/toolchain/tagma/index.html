@@ -1508,10 +1508,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#where-tagmas-messages-go" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where tagma's messages go
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#build-profiles" class="md-nav__link">
     <span class="md-ellipsis">
       
         Build profiles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stack-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stack size
       
     </span>
   </a>
@@ -1660,6 +1682,8 @@
   
     
     
+      
+        
       
         
       
@@ -1966,6 +1990,34 @@
     
   
     Modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing a service
   
 
     
@@ -3224,10 +3276,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#where-tagmas-messages-go" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where tagma's messages go
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#build-profiles" class="md-nav__link">
     <span class="md-ellipsis">
       
         Build profiles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stack-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stack size
       
     </span>
   </a>
@@ -3297,6 +3371,10 @@
       
         
       
+        
+      
+        
+      
     
   
   
@@ -3312,7 +3390,15 @@
         
       </li>
       
+      <li><a href="#where-tagmas-messages-go">Where tagma's messages go</a>
+        
+      </li>
+      
       <li><a href="#build-profiles">Build profiles</a>
+        
+      </li>
+      
+      <li><a href="#stack-size">Stack size</a>
         
       </li>
       
@@ -3446,40 +3532,74 @@
 <p>A program's entry point is <code>src/main.sten</code>; a library's is <code>src/lib.sten</code>.
 <code>check</code>, <code>test</code> and <code>doc</code> work on both; <code>build</code> and <code>run</code> need a
 <code>src/main.sten</code>.</p>
+<h2 id="where-tagmas-messages-go">Where tagma's messages go<a class="headerlink" href="#where-tagmas-messages-go" title="Permanent link">&para;</a></h2>
+<p>tagma's progress lines (<code>Compiling</code>, <code>Finished</code>, <code>Running</code>, <code>Added</code>...) go
+to stderr, so a program's output under <code>tagma run</code> is the only thing on
+stdout: <code>tagma run &gt; out.txt</code> holds just the program's. To send them
+elsewhere, or keep a log, add an <code>[output]</code> table to <code>Tagma.toml</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">[output]</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"stdout"</span><span class="w">            </span><span class="c1"># "stderr" (the default), "stdout", or "none"</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">log</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"logs/build.log"</span><span class="w">       </span><span class="c1"># also append everything tagma prints here</span>
+</code></pre></div>
+<p>The log gets each run's command line (<code>$ tagma build</code>) and then everything
+written to stderr while it runs: tagma's messages, the compiler's
+diagnostics in full, a failing <code>llc</code> or <code>cc</code>. Its directory is made if
+needed. The program <code>tagma run</code> starts keeps its own output; for a log of
+what a program does, use <code>std.logging</code>.</p>
+<p>For one run, the command line overrides the file: <code>--status
+stdout|stderr|none</code>, <code>-q</code> or <code>--quiet</code> (the same as <code>--status none</code>), and
+<code>--log &lt;file&gt;</code>. Errors always reach stderr, whatever <code>status</code> says, so a
+failure is never hidden.</p>
 <h2 id="build-profiles">Build profiles<a class="headerlink" href="#build-profiles" title="Permanent link">&para;</a></h2>
 <p><code>tagma build</code> makes a <strong>draft</strong> build: fast to compile and easy to debug.
 <code>tagma build --release</code> makes an optimized, stripped build that reads like a
 generic C binary. Every build is hardened: position-independent, full
 RELRO, a non-executable stack and stack protection.</p>
+<h2 id="stack-size">Stack size<a class="headerlink" href="#stack-size" title="Permanent link">&para;</a></h2>
+<p>A program's main thread gets the system's stack, as a C program does:
+usually 8 MiB (<code>ulimit -s</code> shows it). A program that recurses deeply (a
+parser of deeply nested input, a recursive search) can ask for more:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">[build]</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">stack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"256MiB"</span><span class="w">             </span><span class="c1"># a number of bytes, or with KiB, MiB or GiB</span>
+</code></pre></div>
+<p>or <code>stenopos build --stack 256MiB</code> for a single file. The program then
+raises its limit and starts itself again before <code>main</code>, once; a program
+that doesn't ask starts once and pays nothing. Running out of stack stops
+the program with <code>stack overflow</code> and this advice, not a bare
+"Segmentation fault". Programs that tagma or <code>stenopos run</code> start get the
+stack your shell gave them, never the toolchain's own (1 GiB), so what
+passes under <code>tagma run</code> behaves the same on its own.</p>
+<p>On Linux a stack is virtual memory; the kernel decides which physical
+memory backs it, and only the pages a program touches use any.</p>
 <h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
 <p>Today a dependency is a <strong>local path</strong> to another project. Its <code>src/</code>
 directory becomes an import root:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>util/src/lib.sten        module util ... pub func greet(str who) -&gt; str
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>hello/src/main.sten      import util.{greet}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>util/src/lib.sten        module util ... pub func greet(str who) -&gt; str
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>hello/src/main.sten      import util.{greet}
 </code></pre></div>
 <p>Registry packages are added with <code>tagma add</code>; see
 <a href="../packages/">Packages and the registry</a>.</p>
 <h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>// tests/math.sten
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>@test
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>func adds() -&gt; void {
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    if (1 + 1 != 2) {
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        fail("math is broken")
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    }
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>// tests/math.sten
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>@test
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>func adds() -&gt; void {
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    if (1 + 1 != 2) {
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        fail("math is broken")
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    }
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>}
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>tagma<span class="w"> </span><span class="nb">test</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>tagma<span class="w"> </span><span class="nb">test</span>
 </code></pre></div>
 <p>A test in <code>tests/</code> imports the project's own modules (<code>import dotenv.{parse}</code>
 for a library whose <code>src/lib.sten</code> is <code>module dotenv</code>). A test function that
 needs a capability declares it, like any function:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>@cap(File)
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>@test
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>func reads_config() -&gt; void {
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    if (read_file("Tagma.toml") == "") {
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        fail("no manifest")
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    }
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>@cap(File)
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>@test
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>func reads_config() -&gt; void {
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    if (read_file("Tagma.toml") == "") {
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        fail("no manifest")
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    }
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>}
 </code></pre></div>
 <h2 id="single-files">Single files<a class="headerlink" href="#single-files" title="Permanent link">&para;</a></h2>
 <p><code>stenopos</code> keeps its single-file commands (<code>stenopos run file.sten</code>, <code>build</code>,

@@ -1566,6 +1566,8 @@
       
         
       
+        
+      
     
     
     
@@ -1888,6 +1890,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#an-error-nobody-catches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        An error nobody catches
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#with-scoped-cleanup" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1955,6 +1968,34 @@
     
   
     Modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing a service
   
 
     
@@ -3202,6 +3243,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#an-error-nobody-catches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        An error nobody catches
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#with-scoped-cleanup" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3273,6 +3325,8 @@
       
         
       
+        
+      
     
   
   
@@ -3281,6 +3335,10 @@
     <ul class="sten-toc__list">
       
       <li><a href="#try-catch-finally">Try / catch / finally</a>
+        
+      </li>
+      
+      <li><a href="#an-error-nobody-catches">An error nobody catches</a>
         
       </li>
       
@@ -3341,14 +3399,36 @@ malformed input, for example.</p>
 <p>Typed errors (<code>catch (IOError e)</code>), several <code>catch</code> clauses tried in order,
 and an error value with fields such as <code>e.message</code>.</p>
 </div>
+<h2 id="an-error-nobody-catches">An error nobody catches<a class="headerlink" href="#an-error-nobody-catches" title="Permanent link">&para;</a></h2>
+<p>An error that no <code>try</code> catches <strong>ends the program</strong>, wherever it was thrown:
+in <code>main</code> or in any Hemerodrome (a <code>spawn</code>ed task). The program prints</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>stenopos: uncaught exception in a task: connect db:5432: connection refused
+</code></pre></div>
+<p>on stderr, flushes what it had printed, and exits with code <strong>70</strong>. It does
+not carry on with one task silently gone: a server whose request handler
+throws stops, so a supervisor (Kubernetes, systemd) restarts it and the
+failure shows. To keep running, catch the error where you can handle it,
+for example around each request:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>// docs-snippet: skip
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>try {
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    h.respond(handle(r))
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>} catch (str e) {
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    eprintln("request failed: " + e)
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    h.respond(text(500, "internal server error\n"))
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>}
+</code></pre></div>
+<p>Library functions that wait on the network don't throw for conditions a
+server is expected to ride out: <code>accept</code> waits, with a warning, when the
+process has run out of file descriptors, and skips a client that gave up
+before it was accepted.</p>
 <h2 id="with-scoped-cleanup">With (scoped cleanup)<a class="headerlink" href="#with-scoped-cleanup" title="Permanent link">&para;</a></h2>
 <p><code>with</code> holds a resource for a block and releases it when the block ends, on
 every path. Locks use it today:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>mutex[int32] m = mutex(0)
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>with (g = m.guard()) {
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    g.set(g.get() + 1)
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>}
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>// the lock is released here
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>mutex[int32] m = mutex(0)
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>with (g = m.guard()) {
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    g.set(g.get() + 1)
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>}
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>// the lock is released here
 </code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Coming in 1.0</p>
@@ -3359,20 +3439,20 @@ every path. Locks use it today:</p>
 path: falling off the end, an early <code>return</code>, a <code>break</code>/<code>continue</code>, or a <code>throw</code>.
 Deferred expressions run <strong>last-in-first-out</strong>, and <strong>before</strong> the block's locals
 are freed, so cleanup can still use them.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>func process() -&gt; void {
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    println("open")
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    defer println("close")   // runs no matter how process() exits
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    println("work")
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    // ... "close" prints here automatically ...
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>func process() -&gt; void {
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    println("open")
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    defer println("close")   // runs no matter how process() exits
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    println("work")
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    // ... "close" prints here automatically ...
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>}
 </code></pre></div>
 <p><code>defer</code> is <strong>block-scoped</strong>: a <code>defer</code> inside a loop body fires at the end of
 each iteration, not all at once when the function returns.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>for (i in 0..2) {
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    defer println("close {i}")
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    println("open {i}")
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>}
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>// open 0 / close 0 / open 1 / close 1 / open 2 / close 2
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>for (i in 0..2) {
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    defer println("close {i}")
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    println("open {i}")
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>}
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>// open 0 / close 0 / open 1 / close 1 / open 2 / close 2
 </code></pre></div>
 <h2 id="contracts">Contracts<a class="headerlink" href="#contracts" title="Permanent link">&para;</a></h2>
 <p><code>@requires</code> and <code>@ensures</code> attach a precondition and a postcondition to a
@@ -3380,28 +3460,28 @@ function. Both are boolean expressions checked at run time; <code>@ensures</code
 the returned value as <code>result</code>. A violated contract reports which one failed and
 stops the program — a broken assumption halts at the boundary that stated it,
 instead of corrupting whatever comes next.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>@requires(n &gt;= 0)
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>@ensures(result &gt;= 1)
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>func factorial(int32 n) -&gt; int32 {
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    if (n &lt;= 1) {
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        return 1
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    }
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    return n * factorial(n - 1)
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>@requires(n &gt;= 0)
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>@ensures(result &gt;= 1)
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>func factorial(int32 n) -&gt; int32 {
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    if (n &lt;= 1) {
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        return 1
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    }
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    return n * factorial(n - 1)
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>}
 </code></pre></div>
 <p>Several <code>@requires</code> may be stacked; each is checked on entry.</p>
 <h2 id="nested-error-handling">Nested error handling<a class="headerlink" href="#nested-error-handling" title="Permanent link">&para;</a></h2>
 <p><code>try</code> blocks nest; an error is caught by the innermost <code>catch</code> around it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>try {
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    try {
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>        throw("inner")
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    } catch (Error e) {
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        println("caught {e}")
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        throw("outer")
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    }
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>} catch (Error e) {
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    println("then caught {e}")
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>try {
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    try {
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>        throw("inner")
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    } catch (Error e) {
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>        println("caught {e}")
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>        throw("outer")
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    }
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>} catch (Error e) {
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    println("then caught {e}")
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>}
 </code></pre></div>
 
 

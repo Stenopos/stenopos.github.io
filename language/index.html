@@ -1564,6 +1564,8 @@
       
         
       
+        
+      
     
     
     
@@ -1851,6 +1853,34 @@
     
   
     Modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guide/services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing a service
   
 
     
@@ -3165,10 +3195,16 @@ semicolons, and it makes security part of the type system:</p>
 <ul>
 <li><strong>Memory safety without a garbage collector.</strong> NOVA ownership tracking frees
   memory at compile-time-known points and rules out use-after-free and
-  double frees. Threads share state only through <code>chan</code>, <code>atomic</code> and the
-  locks; a data-race-freedom guarantee is planned, not yet checked.</li>
-<li><strong>Taint tracking.</strong> Untrusted input cannot reach a SQL query, a shell
-  command or another sink until it passes a sanitizer.</li>
+  double frees for everything the test corpus covers. One gap remains: using
+  a value after <code>send</code> moved it is not refused yet (it crashes cleanly at
+  run time; the compile-time check is planned). Threads share state only
+  through <code>chan</code>, <code>atomic</code> and the locks; a data-race-freedom guarantee is
+  planned, not yet checked.</li>
+<li><strong>Taint tracking.</strong> For functions you mark <code>@tainted</code> (sources) and <code>@sink</code>,
+  the compiler refuses a path from one to the other that doesn't pass a
+  <code>@sanitizer</code>. The standard library's own sources and sinks (arguments,
+  environment, stdin, files, sockets, the shell) are not marked yet; they
+  will be by 1.0.</li>
 <li><strong>Effects and capabilities.</strong> A function declares what it may do
   (<code>@cap(File)</code>, <code>@cap(Network)</code>…), and the compiler holds it to that.</li>
 <li><strong>Constant-time secrets.</strong> <code>secret[T]</code> values cannot steer branches or

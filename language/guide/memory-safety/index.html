@@ -1566,6 +1566,8 @@
       
         
       
+        
+      
     
     
     
@@ -1972,6 +1974,34 @@
     
   
     Modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing a service
   
 
     
@@ -3364,8 +3394,12 @@ value's owner goes away.</p>
 </code></pre></div>
 <p>Strings, lists and maps free their memory when their owner leaves scope, on
 every path out: falling off the end, <code>return</code>, <code>break</code>, <code>continue</code> or a
-<code>throw</code>. There is no use-after-free, no double free and no leak, and the CI
-checks the whole test corpus under valgrind.</p>
+<code>throw</code>. The CI runs the whole test corpus under valgrind and accepts no
+use-after-free, no double free and no leak.</p>
+<p>One gap is known: a value used after <code>send</code> moved it into a channel is not
+refused at compile time yet. It reads as empty or stops the program with a
+crash rather than corrupting memory, and the compile-time check is planned
+(<a href="https://github.com/Stenopos/design/blob/main/adr/0040-ownership-and-moves.md">ADR-0040</a>).</p>
 <h2 id="ownership">Ownership<a class="headerlink" href="#ownership" title="Permanent link">&para;</a></h2>
 <p>Every value has exactly one owner.</p>
 <p><strong>Today</strong>, handing a value to a new owner copies it: after <code>str b = a</code>, <code>a</code> and
