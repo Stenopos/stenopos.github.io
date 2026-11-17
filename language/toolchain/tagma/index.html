@@ -1497,6 +1497,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#tab-completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tab completion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#tagmatoml" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3265,6 +3276,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#tab-completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tab completion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#tagmatoml" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3375,6 +3397,8 @@
       
         
       
+        
+      
     
   
   
@@ -3383,6 +3407,10 @@
     <ul class="sten-toc__list">
       
       <li><a href="#commands">Commands</a>
+        
+      </li>
+      
+      <li><a href="#tab-completion">Tab completion</a>
         
       </li>
       
@@ -3509,17 +3537,38 @@
 <td><code>tagma registry check [&lt;dir&gt;]</code></td>
 <td>Check a checkout of the package registry: its format and every signature (<a href="../packages/">Packages and the registry</a>)</td>
 </tr>
+<tr>
+<td><code>tagma completions bash\|zsh\|fish</code></td>
+<td>Print the script that makes <kbd>Tab</kbd> complete tagma (from rc.8; see <a href="#tab-completion">Tab completion</a>)</td>
+</tr>
 </tbody>
 </table>
 <p><code>--feature NAME</code> turns on <code>@cfg(feature == "NAME")</code> code.</p>
+<h2 id="tab-completion">Tab completion<a class="headerlink" href="#tab-completion" title="Permanent link">&para;</a></h2>
+<div class="admonition info">
+<p class="admonition-title">New in rc.8</p>
+<p>Not in rc.7 or earlier releases.</p>
+</div>
+<p><kbd>Tab</kbd> completes <code>tagma</code> and <code>stenopos</code>: commands and flags,
+<code>--target</code> and <code>--allow</code> values, <code>.sten</code> files where a source file goes,
+the error codes after <code>stenopos explain</code>, package names after <code>tagma add</code>
+(from the registry index tagma keeps; completion never uses the network),
+and your dependencies after <code>tagma remove</code> and <code>tagma update</code>.</p>
+<p>The installer sets it up for bash, zsh and fish, under the install prefix's
+<code>share/</code> directory, where each shell looks. To load it by hand (the same
+for <code>stenopos</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">source</span><span class="w"> </span>&lt;<span class="o">(</span>tagma<span class="w"> </span>completions<span class="w"> </span>bash<span class="o">)</span><span class="w">                               </span><span class="c1"># in ~/.bashrc</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">source</span><span class="w"> </span>&lt;<span class="o">(</span>tagma<span class="w"> </span>completions<span class="w"> </span>zsh<span class="o">)</span><span class="w">                                </span><span class="c1"># in ~/.zshrc, after compinit</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>tagma<span class="w"> </span>completions<span class="w"> </span>fish<span class="w"> </span>&gt;<span class="w"> </span>~/.config/fish/completions/tagma.fish
+</code></pre></div>
 <h2 id="tagmatoml">Tagma.toml<a class="headerlink" href="#tagmatoml" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">[package]</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"hello"</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"0.1.0"</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">edition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"2026"</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">[dependencies]</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">util</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"../util"</span><span class="w"> </span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">[package]</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"hello"</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"0.1.0"</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">edition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"2026"</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="k">[dependencies]</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="n">util</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"../util"</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 <ul>
 <li><strong><code>name</code></strong>: letters, digits, <code>-</code> and <code>_</code>, starting with a letter.</li>
@@ -3537,9 +3586,9 @@
 to stderr, so a program's output under <code>tagma run</code> is the only thing on
 stdout: <code>tagma run &gt; out.txt</code> holds just the program's. To send them
 elsewhere, or keep a log, add an <code>[output]</code> table to <code>Tagma.toml</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">[output]</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"stdout"</span><span class="w">            </span><span class="c1"># "stderr" (the default), "stdout", or "none"</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">log</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"logs/build.log"</span><span class="w">       </span><span class="c1"># also append everything tagma prints here</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">[output]</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"stdout"</span><span class="w">            </span><span class="c1"># "stderr" (the default), "stdout", or "none"</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">log</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"logs/build.log"</span><span class="w">       </span><span class="c1"># also append everything tagma prints here</span>
 </code></pre></div>
 <p>The log gets each run's command line (<code>$ tagma build</code>) and then everything
 written to stderr while it runs: tagma's messages, the compiler's
@@ -3559,8 +3608,8 @@ RELRO, a non-executable stack and stack protection.</p>
 <p>A program's main thread gets the system's stack, as a C program does:
 usually 8 MiB (<code>ulimit -s</code> shows it). A program that recurses deeply (a
 parser of deeply nested input, a recursive search) can ask for more:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">[build]</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">stack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"256MiB"</span><span class="w">             </span><span class="c1"># a number of bytes, or with KiB, MiB or GiB</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">[build]</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">stack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"256MiB"</span><span class="w">             </span><span class="c1"># a number of bytes, or with KiB, MiB or GiB</span>
 </code></pre></div>
 <p>or <code>stenopos build --stack 256MiB</code> for a single file. The program then
 raises its limit and starts itself again before <code>main</code>, once; a program
@@ -3574,32 +3623,32 @@ memory backs it, and only the pages a program touches use any.</p>
 <h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
 <p>Today a dependency is a <strong>local path</strong> to another project. Its <code>src/</code>
 directory becomes an import root:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>util/src/lib.sten        module util ... pub func greet(str who) -&gt; str
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>hello/src/main.sten      import util.{greet}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>util/src/lib.sten        module util ... pub func greet(str who) -&gt; str
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>hello/src/main.sten      import util.{greet}
 </code></pre></div>
 <p>Registry packages are added with <code>tagma add</code>; see
 <a href="../packages/">Packages and the registry</a>.</p>
 <h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>// tests/math.sten
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>@test
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>func adds() -&gt; void {
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    if (1 + 1 != 2) {
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        fail("math is broken")
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    }
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>// tests/math.sten
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>@test
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>func adds() -&gt; void {
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    if (1 + 1 != 2) {
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        fail("math is broken")
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    }
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>}
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>tagma<span class="w"> </span><span class="nb">test</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>tagma<span class="w"> </span><span class="nb">test</span>
 </code></pre></div>
 <p>A test in <code>tests/</code> imports the project's own modules (<code>import dotenv.{parse}</code>
 for a library whose <code>src/lib.sten</code> is <code>module dotenv</code>). A test function that
 needs a capability declares it, like any function:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>@cap(File)
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>@test
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>func reads_config() -&gt; void {
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    if (read_file("Tagma.toml") == "") {
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        fail("no manifest")
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    }
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>@cap(File)
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>@test
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>func reads_config() -&gt; void {
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    if (read_file("Tagma.toml") == "") {
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>        fail("no manifest")
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    }
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>}
 </code></pre></div>
 <h2 id="single-files">Single files<a class="headerlink" href="#single-files" title="Permanent link">&para;</a></h2>
 <p><code>stenopos</code> keeps its single-file commands (<code>stenopos run file.sten</code>, <code>build</code>,

@@ -3476,29 +3476,122 @@ be duplicated.</p>
 <a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    println("{x}")     // 42
 <a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>}
 </code></pre></div>
-<p>Dereferencing a pointer and calling an <code>extern</code> C function require <code>unsafe</code>.</p>
-<div class="admonition note">
-<p class="admonition-title">Coming in 1.0 (ADR-0041)</p>
-<p><em>Every</em> use of a raw pointer will require <code>unsafe</code>, including taking an
-address with <code>&amp;x</code> and holding a <code>ptr[T]</code>, so the <code>unsafe</code> blocks are the
+<p>Everything that makes or uses a pointer needs <code>unsafe</code> (ADR-0041): taking
+an address (<code>&amp;x</code>), reading or writing through one (<code>*p</code>), casting to or from
+one, comparing two, and calling a C function. So the <code>unsafe</code> blocks are the
 complete list of places to audit.</p>
-</div>
-<h2 id="calling-c">Calling C<a class="headerlink" href="#calling-c" title="Permanent link">&para;</a></h2>
+<p>A <code>ptr[T]</code> knows its <code>T</code>: <code>*p</code> reads and writes a <code>T</code>, and a <code>ptr[int64]</code>
+isn't a <code>ptr[int32]</code>. <code>ptr[void]</code> is C's <code>void *</code>: any pointer converts to it,
+and it converts back only by a cast. C's narrow integers (<code>uint8</code>, <code>int8</code>,
+<code>uint16</code>, <code>int16</code>) have no Stenopos type of their own: through a
+<code>ptr[uint8]</code>, <code>*p</code> reads an <code>int32</code> and a store keeps the low byte. <code>&amp;s</code> of a
+struct is the address of its fields, which is what C's <code>struct T *</code> means.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>extern "C" {
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    func abs(int32 n) -&gt; int32
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    func labs(int64 n) -&gt; int64
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    func malloc(uint64 size) -&gt; ptr[void]
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    func free(ptr[void] p) -&gt; void
 <a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>}
 <a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
 <a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>func main() -&gt; void {
 <a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    unsafe {
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        println("{abs(0 - 7)} {labs(0 - 9)}")
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    }
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>}
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        ptr[int64] p = cast[ptr[int64]](malloc(8))     // ptr[void] -&gt; ptr[int64]
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>        if (p != cast[ptr[int64]](0)) {                 // null is cast[ptr[T]](0)
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>            *p = 5000000000
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>            println("{*p} at {cast[uint64](p)}")       // an address is a uint64
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>            free(p)
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>        }
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>    }
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>}
 </code></pre></div>
+<p>From rc.8; in rc.7 and earlier <code>&amp;x</code> was allowed outside <code>unsafe</code>, and <code>*p</code>
+read an <code>int32</code> whatever <code>T</code> was. Reading a whole struct through a pointer
+(<code>*p</code> on a <code>ptr[S]</code>) isn't supported yet: pass the pointer on to C.</p>
+<h2 id="calling-c">Calling C<a class="headerlink" href="#calling-c" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>extern "C" {
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    func abs(int32 n) -&gt; int32
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    func labs(int64 n) -&gt; int64
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>}
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>func main() -&gt; void {
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    unsafe {
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>        println("{abs(0 - 7)} {labs(0 - 9)}")
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    }
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>}
+</code></pre></div>
+<p>From rc.8 a C function can take and return any of these, mixed freely, and
+each call's arguments are checked against them like any other call's:</p>
+<table>
+<thead>
+<tr>
+<th>Stenopos</th>
+<th>C</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>int32</code>, <code>uint32</code></td>
+<td><code>int</code>, <code>unsigned</code></td>
+</tr>
+<tr>
+<td><code>int64</code>, <code>uint64</code></td>
+<td><code>long</code>, <code>size_t</code> (and other 64-bit integers)</td>
+</tr>
+<tr>
+<td><code>bool</code></td>
+<td><code>bool</code> (<code>_Bool</code>, one byte)</td>
+</tr>
+<tr>
+<td><code>float64</code></td>
+<td><code>double</code></td>
+</tr>
+<tr>
+<td><code>ptr[T]</code></td>
+<td><code>T *</code> (a struct with <code>@repr("C")</code>, or a scalar)</td>
+</tr>
+<tr>
+<td><code>str</code> (parameters)</td>
+<td><code>const char *</code>: a NUL-terminated copy, valid for the call</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>extern "C" {
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    func strlen(str s) -&gt; uint64
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    func snprintf(ptr[uint8] buf, uint64 size, str fmt, ...) -&gt; int32
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>}
+</code></pre></div>
+<p>A <code>str</code> with a NUL byte inside stops the program rather than reaching C:
+C would read only up to the NUL, and a path or a name cut short is a bug at
+best. A C function can't return <code>str</code> (who frees C's string is up to C):
+return <code>ptr[uint8]</code> and copy it. After <code>...</code>, a variadic function's
+arguments travel as C's default promotions do. Integer literals, and
+arithmetic on them (<code>0 - 7</code>), take the parameter's type; an <code>int32</code>
+variable does not become an <code>int64</code> without <code>cast[int64]()</code>.</p>
+<p><strong>Structs by value.</strong> A <code>@repr("C")</code> struct whose fields are scalars,
+pointers or enums can be a C function's parameter or result. How C passes
+structs differs on every architecture, so the call goes through a small C
+wrapper that the compiler writes and the target's own C compiler builds:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>@repr("C")
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>struct DivT {
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    int32 quot
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    int32 rem
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>}
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>extern "C" func div(int32 num, int32 den) -&gt; DivT
+</code></pre></div>
+<p><strong>Callbacks.</strong> A parameter of a function type takes a named top-level
+function, which C calls through a plain function pointer:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>extern "C" func qsort(ptr[int32] base, uint64 n, uint64 size, fn(ptr[int32], ptr[int32]) -&gt; int32 compare) -&gt; void
+</code></pre></div>
+<p>Its parameters and result must be ones C can pass (integers, <code>float64</code>,
+<code>bool</code> and pointers), and a lambda isn't accepted: its captured variables have
+no C form. An error thrown out of a callback can't unwind through C's frames,
+so it ends the program (exit status 70) with its message.</p>
 <div class="admonition note">
 <p class="admonition-title">Limits today</p>
-<p>An <code>extern</code> function's parameters and result must all be <code>int32</code>, or all
-<code>int64</code>. Pointers, strings, structs and mixed types are coming (PLAN M8).</p>
+<p>rc.7 and earlier: parameters and result all <code>int32</code>, or all <code>int64</code>, and
+none of the above. Still to come: a struct whose field is another struct
+is stored as a pointer to it, not inline as C stores it, so such a
+struct can't be passed by value yet, and reading one through a pointer
+isn't C's layout.</p>
 </div>
 <h2 id="no-null-dereferences">No null dereferences<a class="headerlink" href="#no-null-dereferences" title="Permanent link">&para;</a></h2>
 <p>Nullable values (<code>T?</code>) must be checked before use; the compiler narrows the

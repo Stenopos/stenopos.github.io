@@ -3509,6 +3509,10 @@
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>counter = counter + 1   // ok
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>// MAX = 200            // compile error
 </code></pre></div>
+<p>A <code>const</code> outside any function belongs to its module: every function in the
+module can use it, above or below the declaration, as with functions (from
+rc.8; earlier releases need the <code>const</code> above its first use). Its value must
+be a literal, and <code>pub const</code> shares it with modules that import it.</p>
 <h2 id="string-literals">String literals<a class="headerlink" href="#string-literals" title="Permanent link">&para;</a></h2>
 <p>A string is UTF-8 text in double quotes. <code>{expr}</code> inside one is an
 interpolation: the expression's value, converted to text. A string may span
