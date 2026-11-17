@@ -3262,6 +3262,14 @@ seed, checked by an IR fixpoint on every build.</p>
 <td>The package registry: a signed index, <code>tagma add</code>/<code>update</code>/<code>vendor</code>/<code>publish</code>/<code>retract</code>, minimal version selection, capability grants enforced by the compiler, every published version re-checked from its source</td>
 </tr>
 <tr>
+<td>rc.7</td>
+<td>Programs that run as services: tasks that wait without holding a thread, <code>std.http</code> and <code>std.tls</code> (OpenSSL linked), signals and a clean exit on SIGTERM, line-flushed output; fixes from the 2026-11-14 review</td>
+</tr>
+<tr>
+<td>rc.8 (next)</td>
+<td>A toolchain without a shell; the language changes before 1.0 (ADR-0044) and move checking (ADR-0045); a complete FFI; crypto in std, static builds, dependencies by URL and air-gapped use; size measured and cut</td>
+</tr>
+<tr>
 <td>1.0</td>
 <td>The stable release</td>
 </tr>

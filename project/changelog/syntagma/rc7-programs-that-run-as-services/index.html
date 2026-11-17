@@ -3277,7 +3277,7 @@
                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 20a8 8 0 0 0 8-8 8 8 0 0 0-8-8 8 8 0 0 0-8 8 8 8 0 0 0 8 8m0-18a10 10 0 0 1 10 10 10 10 0 0 1-10 10C6.47 22 2 17.5 2 12A10 10 0 0 1 12 2m.5 5v5.25l4.5 2.67-.75 1.23L11 13V7z"/></svg>
                           <span class="md-ellipsis">
                             
-                              5 min read
+                              6 min read
                             
                           </span>
                         </div>
@@ -3365,6 +3365,13 @@ trust.</strong></p>
 <li><strong>Request and response splitting.</strong> <code>std.http</code> sends no CR, LF or NUL
   from a program's values in a request or response.</li>
 </ul>
+<p>One more was found by our own fuzzing while the release was being built:
+<code>std.http</code> trimmed control bytes away before reading a header or a chunk
+size, so <code>Content-Length: 1</code> followed by a control byte read as 1, where
+other HTTP parsers refuse it. Two parsers that disagree about where a
+message ends is how requests are smuggled past a proxy. A start line or
+header with any control byte but tab is now refused, and chunk sizes are
+read strictly.</p>
 <p>Also from the review: TLS setup steps fail closed and a closed connection's
 handle can't reach a newer one; every allocation in the runtime is checked
 (<code>stenopos: out of memory</code> instead of a crash later); <code>exit()</code> no longer
@@ -3380,9 +3387,140 @@ programs do; one that needs more says so (<code>[build] stack = "256MiB"</code> 
 segmentation fault.</p>
 <p>Every allocation is now checked, and allocating got cheaper anyway: the
 check costs one test, the runtime calls libc without PLT stubs, and
-integers become strings without a copy. Against rc.6's runtime, the map
-benchmark runs 2.3% fewer instructions, strings 2.8% and structs 0.9%, and
-no benchmark binary grew.</p>
+integers become strings without a copy. Measured by CI against rc.6, the
+<code>map</code> benchmark runs 2.0% fewer instructions and <code>strings</code> 2.5%.</p>
+<p>One number went the wrong way: the <code>map</code> binary grew from 14 KB to 18 KB.
+Binaries grow a page (4 KB) at a time, and this release's runtime
+additions put <code>map</code>'s code just past a page boundary, by about 340 bytes. rc.8 brings it back under, as the first step of the size
+work in <a href="https://github.com/Stenopos/design/blob/main/PLAN.md">the plan</a>.
+The compiler's own work grew 1.1%.</p>
+<p>Each program is written twice, in Stenopos and in C, and both must print
+the same output. Stenopos builds with <code>stenopos build --release</code>, C with
+<code>cc -O2 -s</code>. Each cell shows the Stenopos number, then Stenopos ÷ C:
+below 1× means Stenopos uses less. Instruction counts come from valgrind,
+so they are exact and repeat run to run. Build counts include the whole
+toolchain (LLVM, the C compiler, the linker).</p>
+<table>
+<thead>
+<tr>
+<th>Program</th>
+<th>Binary size</th>
+<th>Run (instructions)</th>
+<th>Peak memory</th>
+<th>Build (instructions)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fib</code></td>
+<td>14.0 KB · 0.99×</td>
+<td>7.4M · 1.21×</td>
+<td>1.4 MB · 0.99×</td>
+<td>85.8M · 0.29×</td>
+</tr>
+<tr>
+<td><code>hello</code></td>
+<td>14.0 KB · 0.99×</td>
+<td>128k · 1.08×</td>
+<td>1.4 MB · 1.15×</td>
+<td>80.7M · 0.71×</td>
+</tr>
+<tr>
+<td><code>loop</code></td>
+<td>14.0 KB · 0.99×</td>
+<td>30.9M · 0.95×</td>
+<td>1.4 MB · 1.04×</td>
+<td>94.2M · 0.71×</td>
+</tr>
+<tr>
+<td><code>map</code></td>
+<td>18.0 KB · 1.27×</td>
+<td>33.9M · 0.85×</td>
+<td>2.4 MB · 0.88×</td>
+<td>97.3M · 0.47×</td>
+</tr>
+<tr>
+<td><code>sort</code></td>
+<td>14.0 KB · 0.99×</td>
+<td>25.0M · 1.09×</td>
+<td>1.6 MB · 1.19×</td>
+<td>94.3M · 0.60×</td>
+</tr>
+<tr>
+<td><code>strings</code></td>
+<td>14.0 KB · 0.99×</td>
+<td>13.2M · 0.80×</td>
+<td>2.1 MB · 1.44×</td>
+<td>92.1M · 0.54×</td>
+</tr>
+<tr>
+<td><code>structs</code></td>
+<td>14.0 KB · 0.99×</td>
+<td>25.4M · 0.97×</td>
+<td>2.7 MB · 1.28×</td>
+<td>134.0M · 0.79×</td>
+</tr>
+<tr>
+<td><strong>Geometric mean</strong></td>
+<td><strong>1.03×</strong></td>
+<td><strong>0.99×</strong></td>
+<td><strong>1.12×</strong></td>
+<td><strong>0.56×</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Every number is within the budgets we hold ourselves to.</p>
+<p><strong>Since v1.0.0-rc.6:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Program</th>
+<th>Measure</th>
+<th>v1.0.0-rc.6</th>
+<th>Now</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fib</code></td>
+<td>compile instructions</td>
+<td>36.7M</td>
+<td>37.1M</td>
+<td>+1.1%</td>
+</tr>
+<tr>
+<td><code>hello</code></td>
+<td>compile instructions</td>
+<td>31.8M</td>
+<td>32.1M</td>
+<td>+1.1%</td>
+</tr>
+<tr>
+<td><code>map</code></td>
+<td>binary size</td>
+<td>14.0 KB</td>
+<td>18.0 KB</td>
+<td>+28.5%</td>
+</tr>
+<tr>
+<td><code>map</code></td>
+<td>run instructions</td>
+<td>34.6M</td>
+<td>33.9M</td>
+<td>-2.0%</td>
+</tr>
+<tr>
+<td><code>strings</code></td>
+<td>run instructions</td>
+<td>13.5M</td>
+<td>13.2M</td>
+<td>-2.5%</td>
+</tr>
+</tbody>
+</table>
+<p>Compile instructions are the build minus the C toolchain: what a change to Stenopos can move.</p>
+<p><small>Measured by CI on commit <code>6ccf5815e2a5</code> in <code>Debian GNU/Linux 12 (bookworm)</code>, LLVM version 18.1.8, cc (Debian 12.2.0-14+deb12u1) 12.2.0. The numbers and their signature are attached to the release as <code>benchmarks.tsv</code>.</small></p>
 <h2 id="known-limits">Known limits<a class="headerlink" href="#known-limits" title="Permanent link">&para;</a></h2>
 <p>What this release does not do yet, each with its plan:</p>
 <ul>
