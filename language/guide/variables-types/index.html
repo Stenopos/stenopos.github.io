@@ -3575,6 +3575,16 @@ sorts first (<code>"ab" &lt; "abc"</code>), and uppercase sorts before lowercase
 </thead>
 <tbody>
 <tr>
+<td><code>int8</code></td>
+<td>8-bit signed</td>
+<td>-128 to 127</td>
+</tr>
+<tr>
+<td><code>int16</code></td>
+<td>16-bit signed</td>
+<td>-32768 to 32767</td>
+</tr>
+<tr>
 <td><code>int32</code></td>
 <td>32-bit signed</td>
 <td>-2^31 to 2^31-1</td>
@@ -3583,6 +3593,16 @@ sorts first (<code>"ab" &lt; "abc"</code>), and uppercase sorts before lowercase
 <td><code>int64</code></td>
 <td>64-bit signed</td>
 <td>-2^63 to 2^63-1</td>
+</tr>
+<tr>
+<td><code>uint8</code></td>
+<td>8-bit unsigned</td>
+<td>0 to 255</td>
+</tr>
+<tr>
+<td><code>uint16</code></td>
+<td>16-bit unsigned</td>
+<td>0 to 65535</td>
 </tr>
 <tr>
 <td><code>uint32</code></td>
@@ -3601,8 +3621,13 @@ sorts first (<code>"ab" &lt; "abc"</code>), and uppercase sorts before lowercase
 </tr>
 </tbody>
 </table>
-<p><code>int8</code>, <code>int16</code>, <code>uint8</code>, <code>uint16</code> and <code>float32</code> are reserved for later; using
-one today is a compile error.</p>
+<p>The 8- and 16-bit integers are from rc.8 (earlier releases reserve the
+names). They are for data whose width is fixed outside the program: device
+registers, C's <code>uint8_t</code> and kin, and packed layouts. Their arithmetic is
+checked at their own width (<code>uint8 x = 255</code> then <code>x + 1</code> is an overflow), a
+literal must fit (<code>uint8 b = 300</code> is an error), and they convert to other
+integers with <code>cast</code> (to <code>float64</code> through <code>int32</code>). A list or map of them
+isn't supported yet. <code>float32</code> is reserved for later.</p>
 <p>Unsigned types are unsigned everywhere: comparison, <code>/</code>, <code>%</code> and <code>&gt;&gt;</code> treat the
 top bit as part of the value. An unsigned value can't be negated, and going
 below zero is an overflow.</p>
