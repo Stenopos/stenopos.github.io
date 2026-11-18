@@ -3587,10 +3587,13 @@ by offset, width and access (ADR-0058):</p>
   <code>unsafe</code>. A block's value is its address: passing it, returning it, or
   holding it in a struct copies the address, never the device.</li>
 </ul>
-<p>From rc.8. Still to come: binding blocks from the board's memory map in
-<code>Tagma.toml</code>, so the address isn't in the source at all; making a bound block
-move-only, so one driver owns a device (with move checking, M6); bit fields
-by name; and register arrays.</p>
+<p>In a firmware project the addresses aren't in the source at all:
+<code>Tagma.toml</code>'s <code>[devices]</code> binds each block, and <code>main</code> receives the board
+(<code>func main(Board board)</code>, then <code>board.uart0</code>), with no <code>unsafe</code>; see
+<a href="../../toolchain/tagma/#firmware">Firmware</a>.</p>
+<p>From rc.8. Still to come: making a bound block move-only, so one driver
+owns a device (with move checking, M6); bit fields by name; and register
+arrays.</p>
 <h2 id="calling-c">Calling C<a class="headerlink" href="#calling-c" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>extern "C" {
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    func abs(int32 n) -&gt; int32

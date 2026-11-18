@@ -3420,6 +3420,12 @@
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>Point p = Point { x: 1.0, y: 2.0 }
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>println("{p.x}, {p.y}")
 </code></pre></div>
+<p>A type is used below its declaration: a function can be called before it
+is declared, but a struct, class or enum must come first in the file (or
+be imported). Using a type that isn't declared yet, or at all, is an error
+naming it, wherever it appears: a variable, parameter, result, field, cast
+or trait signature. (Before rc.8 some of those positions quietly read an
+unknown name as <code>int32</code>.)</p>
 <p>Structs and classes can have methods, which reach the value as <code>this</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>struct Point {
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    float64 x

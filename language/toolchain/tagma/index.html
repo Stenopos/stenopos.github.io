@@ -1552,6 +1552,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#firmware" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Firmware
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3331,6 +3342,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#firmware" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Firmware
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3399,6 +3421,8 @@
       
         
       
+        
+      
     
   
   
@@ -3427,6 +3451,10 @@
       </li>
       
       <li><a href="#stack-size">Stack size</a>
+        
+      </li>
+      
+      <li><a href="#firmware">Firmware</a>
         
       </li>
       
@@ -3480,6 +3508,10 @@
 <tr>
 <td><code>tagma check [--allow &lt;A,B&gt;\|none]</code></td>
 <td>Type-check without linking (<code>--allow</code>: the project's own code may use only those capabilities)</td>
+</tr>
+<tr>
+<td><code>tagma board</code></td>
+<td>A firmware project's memory, layout and devices, with each one's <code>Tagma.toml</code> line and the code that uses each device (from rc.8; see <a href="#firmware">Firmware</a>)</td>
 </tr>
 <tr>
 <td><code>tagma test</code></td>
@@ -3620,35 +3652,120 @@ stack your shell gave them, never the toolchain's own (1 GiB), so what
 passes under <code>tagma run</code> behaves the same on its own.</p>
 <p>On Linux a stack is virtual memory; the kernel decides which physical
 memory backs it, and only the pages a program touches use any.</p>
+<h2 id="firmware">Firmware<a class="headerlink" href="#firmware" title="Permanent link">&para;</a></h2>
+<p>A project that runs on a board with no operating system (a boot loader, a
+device's firmware, an OS kernel) describes the board in <code>Tagma.toml</code>.
+tagma builds it freestanding, writes its linker script, and hands <code>main</code>
+the board's devices. From rc.8 (ADR-0057, ADR-0058):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">[target]</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">kind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"firmware"</span><span class="w">                 </span><span class="c1"># no OS, no C library</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">arch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"riscv64"</span><span class="w">                  </span><span class="c1"># riscv64, aarch64 or x86_64</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">[memory]</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">ram</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">origin</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mh">0x8000_0000</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"128MiB"</span><span class="p">,</span><span class="w"> </span><span class="n">kind</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"code"</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="k">[layout]</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="n">code</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"ram"</span><span class="w">                     </span><span class="c1"># code and constants</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="n">data</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"ram"</span><span class="w">                     </span><span class="c1"># statics</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="n">stack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"ram"</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"64KiB"</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="k">[devices]</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="n">uart0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"uart.Ns16550"</span><span class="p">,</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mh">0x1000_0000</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="n">power</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"sifive.SifiveTest"</span><span class="p">,</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mh">0x10_0000</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<ul>
+<li><strong><code>[memory]</code></strong> names the board's regions: each has an <code>origin</code>, a <code>size</code>
+  (in bytes, or <code>"64KiB"</code>, <code>"128MiB"</code>, <code>"1GiB"</code>) and a <code>kind</code>: <code>code</code>
+  (executable RAM), <code>data</code> or <code>rom</code> (read-only, executable). Regions may not
+  overlap.</li>
+<li><strong><code>[layout]</code></strong> says which region holds code, data and the stack, and the
+  stack's size. With a single region it may be left out.</li>
+<li><strong>The linker script is generated</strong> from the two, into
+  <code>target/&lt;profile&gt;/link.ld</code>: nobody writes one. A region that overflows
+  fails the build, naming it, and every build reports each region's use:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>   Compiling pathfinder v0.1.0 (release)
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>      Memory ram      64.5 KiB of 128 MiB (0.0%)
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    Finished target/release/pathfinder
+</code></pre></div>
+<ul>
+<li><strong><code>[devices]</code></strong> binds each device to an address: its <code>type</code> is a
+  <a href="../../guide/memory-safety/#device-registers">register block</a>, named with
+  the module it is declared in (<code>uart.Ns16550</code> for <code>src/uart.sten</code>). A
+  device may not sit inside a memory region or overlap another device.</li>
+</ul>
+<p>The devices reach the program as a value. tagma writes
+<code>target/board.sten</code> on every build (a real file, to read; not to edit),
+with a <code>Board</code> that has one field per device, and <code>main</code> receives it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>import board.{Board}
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>import uart.{Ns16550, put}
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>func main(Board board) -&gt; void {
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    put(board.uart0, 65)          // board.uart0: the UART at 0x1000_0000
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>}
+</code></pre></div>
+<p>Using <code>board.uart0</code> needs no <code>unsafe</code>: the address is <code>Tagma.toml</code>'s,
+reviewed with the board, and each device is a constant address, so the
+board costs nothing at run time. Only tagma's generated file may declare
+a <code>@board</code>; a program that binds a device itself does so with
+<code>registers_at</code> inside <code>unsafe</code>. <code>src/board.sten</code> is refused, since
+<code>board</code> is the generated module's name.</p>
+<p><code>tagma board</code> shows it all, with where each part comes from:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Board: firmware for riscv64 (Tagma.toml:7)
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>Memory
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>  ram        0x80000000     128 MiB    code   Tagma.toml:12
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>Layout
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>  code    ram
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>  data    ram
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>  stack   ram, 64 KiB
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>Devices
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>  uart0      uart.Ns16550         0x10000000     Tagma.toml:20
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>      used at src/main.sten:22: put(board.uart0, 65)
+</code></pre></div>
+<p>Every problem names its line:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Tagma.toml:20: device `uart0` at 0x80001000 is inside region `ram` (Tagma.toml:12)
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>error[E0300]: `board.uart1` doesn't exist: Tagma.toml declares uart0, power
+</code></pre></div>
+<p>The program brings its
+own start-up code (a <code>@naked</code> <code>_start</code> in section <code>.text.start</code>, which the
+linker script places first), as the pathfinder in stenopos-os shows for
+each architecture. <code>@cfg(target_os == "none")</code> selects code for a
+freestanding build.</p>
+<p>Still to come (ADR-0057): placing functions and statics in a region
+(<code>@place</code>), a freestanding runtime so strings and <code>println</code> work, proven
+stack bounds, and boards as packages.</p>
 <h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
 <p>Today a dependency is a <strong>local path</strong> to another project. Its <code>src/</code>
 directory becomes an import root:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>util/src/lib.sten        module util ... pub func greet(str who) -&gt; str
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>hello/src/main.sten      import util.{greet}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>util/src/lib.sten        module util ... pub func greet(str who) -&gt; str
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>hello/src/main.sten      import util.{greet}
 </code></pre></div>
 <p>Registry packages are added with <code>tagma add</code>; see
 <a href="../packages/">Packages and the registry</a>.</p>
 <h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>// tests/math.sten
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>@test
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>func adds() -&gt; void {
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    if (1 + 1 != 2) {
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        fail("math is broken")
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    }
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>// tests/math.sten
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>@test
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>func adds() -&gt; void {
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    if (1 + 1 != 2) {
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>        fail("math is broken")
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    }
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>}
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>tagma<span class="w"> </span><span class="nb">test</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>tagma<span class="w"> </span><span class="nb">test</span>
 </code></pre></div>
 <p>A test in <code>tests/</code> imports the project's own modules (<code>import dotenv.{parse}</code>
 for a library whose <code>src/lib.sten</code> is <code>module dotenv</code>). A test function that
 needs a capability declares it, like any function:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>@cap(File)
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>@test
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>func reads_config() -&gt; void {
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    if (read_file("Tagma.toml") == "") {
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>        fail("no manifest")
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    }
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>@cap(File)
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>@test
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>func reads_config() -&gt; void {
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    if (read_file("Tagma.toml") == "") {
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>        fail("no manifest")
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    }
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>}
 </code></pre></div>
 <h2 id="single-files">Single files<a class="headerlink" href="#single-files" title="Permanent link">&para;</a></h2>
 <p><code>stenopos</code> keeps its single-file commands (<code>stenopos run file.sten</code>, <code>build</code>,
