@@ -1901,6 +1901,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#device-registers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device registers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#calling-c" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3288,6 +3299,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#device-registers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device registers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#calling-c" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3337,6 +3359,8 @@
       
         
       
+        
+      
     
   
   
@@ -3359,6 +3383,10 @@
       </li>
       
       <li><a href="#raw-pointers">Raw pointers</a>
+        
+      </li>
+      
+      <li><a href="#device-registers">Device registers</a>
         
       </li>
       
@@ -3507,7 +3535,7 @@ a byte, and its status register changes on its own. <code>volatile_read(p)</code
 <code>volatile_write(p, v)</code> are <code>*p</code> and <code>*p = v</code> that the compiler performs
 exactly as written, once each and in order, even when nothing reads the value
 back (which would otherwise let the optimizer drop the write):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>func put(int32 c) -&gt; void {
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>func put(uint8 c) -&gt; void {
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    unsafe {
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>        ptr[uint8] status = cast[ptr[uint8]](cast[uint64](0x10000005))
 <a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        while ((volatile_read(status) &amp; 32) == 0) {      // wait until it can send
@@ -3521,17 +3549,59 @@ are separate (PLAN M10).</p>
 <p>From rc.8; in rc.7 and earlier <code>&amp;x</code> was allowed outside <code>unsafe</code>, <code>*p</code>
 read an <code>int32</code> whatever <code>T</code> was, and there was no volatile access. Reading a whole struct through a pointer
 (<code>*p</code> on a <code>ptr[S]</code>) isn't supported yet: pass the pointer on to C.</p>
+<h2 id="device-registers">Device registers<a class="headerlink" href="#device-registers" title="Permanent link">&para;</a></h2>
+<p>Raw addresses, widths and casts repeated through every driver are where a
+wrong offset hides. A <strong>register block</strong> describes a device's registers once,
+by offset, width and access (ADR-0058):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>@registers
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>struct Ns16550 {
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    @at(0x0) write uint8 thr      // transmit holding: a byte written is sent
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    @at(0x1) uint8 ier            // interrupt enable: read and written
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    @at(0x5) read uint8 lsr       // line status: bit 5, ready for a byte
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>}
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>func uart() -&gt; Ns16550 {
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    unsafe {
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>        return registers_at[Ns16550](0x10000000)   // the one unsafe fact
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>    }
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>}
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>func put(Ns16550 u, uint8 c) -&gt; void {
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>    while ((u.lsr &amp; 32) == 0) {          // one volatile 8-bit read per test
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>    }
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>    u.thr = c                            // one volatile 8-bit write
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>}
+</code></pre></div>
+<ul>
+<li><code>@at(offset)</code> places each register, in bytes from the block's address. A
+  register is <code>uint8</code>, <code>uint16</code>, <code>uint32</code> or <code>uint64</code>; registers may leave
+  gaps, but may not overlap and must be aligned to their width.</li>
+<li><code>read</code> or <code>write</code> restricts a register; no keyword means both. Reading a
+  <code>write</code> register or writing a <code>read</code> one is a compile error naming it, and
+  so is <code>+=</code> on a <code>write</code> register (it would read first).</li>
+<li>Every access is exactly one volatile access of the register's width, as
+  <code>volatile_read</code> and <code>volatile_write</code> are. A read-modify-write is written
+  out (<code>u.ier = u.ier + 1</code>): two accesses, both visible.</li>
+<li><code>registers_at[T](address)</code> binds a block to an address, inside <code>unsafe</code>:
+  nothing can check that the device is there. After that, accesses need no
+  <code>unsafe</code>. A block's value is its address: passing it, returning it, or
+  holding it in a struct copies the address, never the device.</li>
+</ul>
+<p>From rc.8. Still to come: binding blocks from the board's memory map in
+<code>Tagma.toml</code>, so the address isn't in the source at all; making a bound block
+move-only, so one driver owns a device (with move checking, M6); bit fields
+by name; and register arrays.</p>
 <h2 id="calling-c">Calling C<a class="headerlink" href="#calling-c" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>extern "C" {
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    func abs(int32 n) -&gt; int32
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    func labs(int64 n) -&gt; int64
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>}
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>func main() -&gt; void {
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    unsafe {
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>        println("{abs(0 - 7)} {labs(0 - 9)}")
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    }
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>extern "C" {
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    func abs(int32 n) -&gt; int32
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    func labs(int64 n) -&gt; int64
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>}
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>func main() -&gt; void {
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    unsafe {
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>        println("{abs(0 - 7)} {labs(0 - 9)}")
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>    }
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>}
 </code></pre></div>
 <p>From rc.8 a C function can take and return any of these, mixed freely, and
 each call's arguments are checked against them like any other call's:</p>
@@ -3569,10 +3639,10 @@ each call's arguments are checked against them like any other call's:</p>
 </tr>
 </tbody>
 </table>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>extern "C" {
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    func strlen(str s) -&gt; uint64
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    func snprintf(ptr[uint8] buf, uint64 size, str fmt, ...) -&gt; int32
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>extern "C" {
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    func strlen(str s) -&gt; uint64
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    func snprintf(ptr[uint8] buf, uint64 size, str fmt, ...) -&gt; int32
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>}
 </code></pre></div>
 <p>A <code>str</code> with a NUL byte inside stops the program rather than reaching C:
 C would read only up to the NUL, and a path or a name cut short is a bug at
@@ -3585,17 +3655,17 @@ variable does not become an <code>int64</code> without <code>cast[int64]()</code
 pointers or enums can be a C function's parameter or result. How C passes
 structs differs on every architecture, so the call goes through a small C
 wrapper that the compiler writes and the target's own C compiler builds:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>@repr("C")
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>struct DivT {
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    int32 quot
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    int32 rem
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>}
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>extern "C" func div(int32 num, int32 den) -&gt; DivT
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>@repr("C")
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>struct DivT {
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    int32 quot
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    int32 rem
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>}
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>extern "C" func div(int32 num, int32 den) -&gt; DivT
 </code></pre></div>
 <p><strong>Callbacks.</strong> A parameter of a function type takes a named top-level
 function, which C calls through a plain function pointer:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>extern "C" func qsort(ptr[int32] base, uint64 n, uint64 size, fn(ptr[int32], ptr[int32]) -&gt; int32 compare) -&gt; void
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>extern "C" func qsort(ptr[int32] base, uint64 n, uint64 size, fn(ptr[int32], ptr[int32]) -&gt; int32 compare) -&gt; void
 </code></pre></div>
 <p>Its parameters and result must be ones C can pass (integers, <code>float64</code>,
 <code>bool</code> and pointers), and a lambda isn't accepted: its captured variables have
