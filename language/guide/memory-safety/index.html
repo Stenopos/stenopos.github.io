@@ -1912,6 +1912,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#interrupts-statics-and-fences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interrupts, statics and fences
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#calling-c" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3310,6 +3321,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#interrupts-statics-and-fences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interrupts, statics and fences
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#calling-c" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3361,6 +3383,8 @@
       
         
       
+        
+      
     
   
   
@@ -3387,6 +3411,10 @@
       </li>
       
       <li><a href="#device-registers">Device registers</a>
+        
+      </li>
+      
+      <li><a href="#interrupts-statics-and-fences">Interrupts, statics and fences</a>
         
       </li>
       
@@ -3544,8 +3572,8 @@ back (which would otherwise let the optimizer drop the write):</p>
 <a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    }
 <a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>}
 </code></pre></div>
-<p>Volatile keeps the compiler's order, not the processor's: memory barriers
-are separate (PLAN M10).</p>
+<p>Volatile keeps the compiler's order, not the processor's: for that, see
+<a href="#interrupts-statics-and-fences">fences</a>.</p>
 <p>From rc.8; in rc.7 and earlier <code>&amp;x</code> was allowed outside <code>unsafe</code>, <code>*p</code>
 read an <code>int32</code> whatever <code>T</code> was, and there was no volatile access. Reading a whole struct through a pointer
 (<code>*p</code> on a <code>ptr[S]</code>) isn't supported yet: pass the pointer on to C.</p>
@@ -3594,17 +3622,93 @@ by offset, width and access (ADR-0058):</p>
 <p>From rc.8. Still to come: making a bound block move-only, so one driver
 owns a device (with move checking, M6); bit fields by name; and register
 arrays.</p>
+<h2 id="interrupts-statics-and-fences">Interrupts, statics and fences<a class="headerlink" href="#interrupts-statics-and-fences" title="Permanent link">&para;</a></h2>
+<p>A timer's interrupt arrives between any two instructions; the code it runs
+needs somewhere to keep what it counts, and a driver handing a buffer to a
+device needs memory to settle in order. Three things cover it (ADR-0059).</p>
+<p><strong>Statics.</strong> A <code>static</code> is a variable that lives for the whole program,
+declared at the top of a module: an integer, <code>bool</code> or <code>float64</code>, with a
+constant first value. Reading or writing one is <code>unsafe</code>, since an
+interrupt can change it between two instructions and nothing makes that
+safe until M6's atomics. Every access is volatile, so a loop waiting for
+an interrupt reads it each time round:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>static uint64 ticks = 0
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>func tick() -&gt; void {
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    unsafe {
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>        ticks += 1
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    }
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>}
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>func main() -&gt; void {
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>    tick()
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>    tick()
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    unsafe {
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>        println("{ticks} ticks")      // 2 ticks
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>    }
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>}
+</code></pre></div>
+<p>A local of the same name hides a static. A <code>pub static</code> can be imported
+from another module like a function.</p>
+<p><strong>Interrupt handlers.</strong> <code>@interrupt</code> marks a function the hardware runs:
+no result, and no parameters or, as <code>main</code> does, the <code>Board</code>, so a timer's
+handler can re-arm its timer. It is ordinary, checked Stenopos. The
+compiler writes its <strong>entry</strong>, which saves the registers the handler may
+change (and the FP/SIMD state where the target has it), calls it, restores
+them and returns from the exception (<code>mret</code>, <code>eret</code>, <code>iretq</code>).
+<code>interrupt_entry(f)</code> is the entry's address, a <code>uint64</code>, for the board's
+code to install: in <code>mtvec</code> on RISC-V, as a branch in the vector table on
+ARM64, in an IDT gate on x86-64. On RISC-V (QEMU's virt board):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>@interrupt
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>func on_timer(Board board) -&gt; void {
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    unsafe {
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>        ticks += 1
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    }
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    arm(board.clint, 100000)         // the next one in 10 ms
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>}
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>func take_ticks(Board board) -&gt; void {
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>    uint64 entry = interrupt_entry(on_timer)
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    arm(board.clint, 100000)
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>    unsafe {
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>        asm {
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>            "csrw mtvec, %0"         // interrupts run on_timer's entry
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>            "li t0, 0x80"
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>            "csrs mie, t0"           // the timer's interrupt
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>            "csrsi mstatus, 0x8"     // interrupts on
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>            :
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>            : "r"(entry)
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>            : "t0"
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>        }
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>    }
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>}
+</code></pre></div>
+<p><code>@interrupt</code> is for freestanding programs. The interrupt controller
+(acknowledging, priorities, nesting) is the program's, written with
+register blocks; stenopos-os's pathfinder takes timer interrupts this way
+on RISC-V, ARM64 (the GIC) and x86-64 (the local APIC). An x86-64 board
+build leaves out the red zone, since an interrupt pushes its frame just
+below the stack pointer.</p>
+<p><strong>Fences.</strong> <code>memory_fence()</code> makes every memory access before it, to
+memory or a device, complete before any after it begins, as the whole
+system sees it (<code>fence iorw, iorw</code> on RISC-V, <code>dsb sy</code> on ARM64, <code>mfence</code>
+on x86-64). Volatile access keeps the compiler's order; a fence keeps the
+processor's and the bus's, for instance between filling a buffer and
+telling a device to read it. It is safe code. There is one fence, the
+strongest; lighter ones can come when a measurement asks for them.</p>
+<p>From rc.8. Still to come with M6: atomics, so a counter shared with a
+handler needs no <code>unsafe</code>.</p>
 <h2 id="calling-c">Calling C<a class="headerlink" href="#calling-c" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>extern "C" {
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    func abs(int32 n) -&gt; int32
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    func labs(int64 n) -&gt; int64
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>}
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>func main() -&gt; void {
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    unsafe {
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>        println("{abs(0 - 7)} {labs(0 - 9)}")
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>    }
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>extern "C" {
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    func abs(int32 n) -&gt; int32
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    func labs(int64 n) -&gt; int64
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>}
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>func main() -&gt; void {
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    unsafe {
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>        println("{abs(0 - 7)} {labs(0 - 9)}")
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>    }
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>}
 </code></pre></div>
 <p>From rc.8 a C function can take and return any of these, mixed freely, and
 each call's arguments are checked against them like any other call's:</p>
@@ -3642,10 +3746,10 @@ each call's arguments are checked against them like any other call's:</p>
 </tr>
 </tbody>
 </table>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>extern "C" {
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    func strlen(str s) -&gt; uint64
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    func snprintf(ptr[uint8] buf, uint64 size, str fmt, ...) -&gt; int32
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>extern "C" {
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    func strlen(str s) -&gt; uint64
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    func snprintf(ptr[uint8] buf, uint64 size, str fmt, ...) -&gt; int32
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>}
 </code></pre></div>
 <p>A <code>str</code> with a NUL byte inside stops the program rather than reaching C:
 C would read only up to the NUL, and a path or a name cut short is a bug at
@@ -3658,17 +3762,17 @@ variable does not become an <code>int64</code> without <code>cast[int64]()</code
 pointers or enums can be a C function's parameter or result. How C passes
 structs differs on every architecture, so the call goes through a small C
 wrapper that the compiler writes and the target's own C compiler builds:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>@repr("C")
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>struct DivT {
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    int32 quot
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    int32 rem
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>}
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>extern "C" func div(int32 num, int32 den) -&gt; DivT
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>@repr("C")
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>struct DivT {
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    int32 quot
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    int32 rem
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>}
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>extern "C" func div(int32 num, int32 den) -&gt; DivT
 </code></pre></div>
 <p><strong>Callbacks.</strong> A parameter of a function type takes a named top-level
 function, which C calls through a plain function pointer:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>extern "C" func qsort(ptr[int32] base, uint64 n, uint64 size, fn(ptr[int32], ptr[int32]) -&gt; int32 compare) -&gt; void
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>extern "C" func qsort(ptr[int32] base, uint64 n, uint64 size, fn(ptr[int32], ptr[int32]) -&gt; int32 compare) -&gt; void
 </code></pre></div>
 <p>Its parameters and result must be ones C can pass (integers, <code>float64</code>,
 <code>bool</code> and pointers), and a lambda isn't accepted: its captured variables have

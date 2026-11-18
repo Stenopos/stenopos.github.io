@@ -3810,6 +3810,9 @@ when it's built.</p>
 <p>On ARM64 the compiler never emits an unaligned access (memory is device
 memory until the program turns the MMU on), and the start code must enable
 the FP/SIMD registers before using them, as the pathfinder's does.</p>
+<p>Interrupt handlers (<code>@interrupt</code>, <code>interrupt_entry</code>), statics and
+<code>memory_fence()</code> are in
+<a href="../../guide/memory-safety/#interrupts-statics-and-fences">Memory safety</a>.</p>
 <p>Still to come (ADR-0057): placing functions and statics in a region
 (<code>@place</code>), proven stack bounds, and boards as packages.</p>
 <h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
