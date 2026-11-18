@@ -1560,6 +1560,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Firmware">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-board-runtime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The board runtime
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -3350,6 +3367,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Firmware">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-board-runtime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The board runtime
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -3455,6 +3489,12 @@
       </li>
       
       <li><a href="#firmware">Firmware</a>
+        
+        <ul>
+          
+          <li><a href="#the-board-runtime">The board runtime</a></li>
+          
+        </ul>
         
       </li>
       
@@ -3656,22 +3696,27 @@ memory backs it, and only the pages a program touches use any.</p>
 <p>A project that runs on a board with no operating system (a boot loader, a
 device's firmware, an OS kernel) describes the board in <code>Tagma.toml</code>.
 tagma builds it freestanding, writes its linker script, and hands <code>main</code>
-the board's devices. From rc.8 (ADR-0057, ADR-0058):</p>
+the board's devices. The program runs on the <strong>board runtime</strong>, written in
+Stenopos, so strings, lists and <code>println</code> work as they do on a host. From
+rc.8 (ADR-0057, ADR-0058):</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">[target]</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">kind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"firmware"</span><span class="w">                 </span><span class="c1"># no OS, no C library</span>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">arch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"riscv64"</span><span class="w">                  </span><span class="c1"># riscv64, aarch64 or x86_64</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">[memory]</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">ram</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">origin</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mh">0x8000_0000</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"128MiB"</span><span class="p">,</span><span class="w"> </span><span class="n">kind</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"code"</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="k">[layout]</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="n">code</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"ram"</span><span class="w">                     </span><span class="c1"># code and constants</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="n">data</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"ram"</span><span class="w">                     </span><span class="c1"># statics</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="n">stack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"ram"</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"64KiB"</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="k">[devices]</span>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="n">uart0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"uart.Ns16550"</span><span class="p">,</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mh">0x1000_0000</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="n">power</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"sifive.SifiveTest"</span><span class="p">,</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mh">0x10_0000</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">console</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">device</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"uart0"</span><span class="p">,</span><span class="w"> </span><span class="n">put</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"uart.put"</span><span class="w"> </span><span class="p">}</span><span class="w">        </span><span class="c1"># println, a failed check</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">halt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">device</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"power"</span><span class="p">,</span><span class="w"> </span><span class="n">call</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"sifive.power_off"</span><span class="w"> </span><span class="p">}</span><span class="w">  </span><span class="c1"># optional</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="k">[memory]</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="n">ram</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">origin</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mh">0x8000_0000</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"128MiB"</span><span class="p">,</span><span class="w"> </span><span class="n">kind</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"code"</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="k">[layout]</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="n">code</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"ram"</span><span class="w">                     </span><span class="c1"># code and constants</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="n">data</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"ram"</span><span class="w">                     </span><span class="c1"># statics</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="n">stack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"ram"</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"64KiB"</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="n">heap</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"ram"</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"1MiB"</span><span class="w"> </span><span class="p">}</span><span class="w">    </span><span class="c1"># strings and lists; optional</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="k">[devices]</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="n">uart0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"uart.Ns16550"</span><span class="p">,</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mh">0x1000_0000</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="n">power</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"sifive.SifiveTest"</span><span class="p">,</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mh">0x10_0000</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 <ul>
 <li><strong><code>[memory]</code></strong> names the board's regions: each has an <code>origin</code>, a <code>size</code>
@@ -3679,7 +3724,8 @@ the board's devices. From rc.8 (ADR-0057, ADR-0058):</p>
   (executable RAM), <code>data</code> or <code>rom</code> (read-only, executable). Regions may not
   overlap.</li>
 <li><strong><code>[layout]</code></strong> says which region holds code, data and the stack, and the
-  stack's size. With a single region it may be left out.</li>
+  stack's size. With a single region it may be left out. <code>heap</code> takes the
+  last <code>size</code> bytes of its region; the linker can place nothing there.</li>
 <li><strong>The linker script is generated</strong> from the two, into
   <code>target/&lt;profile&gt;/link.ld</code>: nobody writes one. A region that overflows
   fails the build, naming it, and every build reports each region's use:</li>
@@ -3720,10 +3766,15 @@ a <code>@board</code>; a program that binds a device itself does so with
 <a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>  code    ram
 <a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>  data    ram
 <a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>  stack   ram, 64 KiB
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>
-<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>Devices
-<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>  uart0      uart.Ns16550         0x10000000     Tagma.toml:20
-<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>      used at src/main.sten:22: put(board.uart0, 65)
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>  heap    ram, 1 MiB at 0x87f00000
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>Runtime
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>  console  uart.put on uart0   Tagma.toml:8
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>  halt     sifive.power_off on power   Tagma.toml:9
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>Devices
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>  uart0      uart.Ns16550         0x10000000     Tagma.toml:20
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>      used at src/main.sten:22: put(board.uart0, 65)
 </code></pre></div>
 <p>Every problem names its line:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Tagma.toml:20: device `uart0` at 0x80001000 is inside region `ram` (Tagma.toml:12)
@@ -3734,9 +3785,33 @@ own start-up code (a <code>@naked</code> <code>_start</code> in section <code>.t
 linker script places first), as the pathfinder in stenopos-os shows for
 each architecture. <code>@cfg(target_os == "none")</code> selects code for a
 freestanding build.</p>
+<h3 id="the-board-runtime">The board runtime<a class="headerlink" href="#the-board-runtime" title="Permanent link">&para;</a></h3>
+<p>A freestanding program is compiled with the board runtime
+(<code>stenopos_bare.sten</code>, installed beside the C runtime): allocation over the
+heap, strings and number formatting, lists, <code>println</code>, and the checks'
+failures. It calls no C. It needs three things from the board, which tagma
+writes into <code>target/board.sten</code> from <code>Tagma.toml</code>:</p>
+<ul>
+<li><strong>The console</strong>: <code>[target] console</code> names the driver function that sends
+  one byte (<code>put = "uart.put"</code>, taking the device when <code>device</code> is given,
+  or only the byte). <code>println</code> and a failed check's message go there. With
+  no console they go nowhere.</li>
+<li><strong>Halting</strong>: <code>[target] halt</code> names the function that stops the board
+  (powers it off, say). Without it the processor waits forever.</li>
+<li><strong>The heap</strong>: <code>[layout] heap</code>. Without it, the first allocation stops
+  the board with <code>out of memory</code>.</li>
+</ul>
+<p>A failed check prints the message a host program prints (<code>integer
+overflow</code>, <code>stenopos: array index out of bounds: index 5, length 3</code>), then
+halts; programs don't define the handlers. A <code>throw</code> is reported as
+uncaught: <code>try</code> isn't supported on a board yet. Maps, sorting and
+<code>float64</code> printing come later; a program that uses them is refused by name
+when it's built.</p>
+<p>On ARM64 the compiler never emits an unaligned access (memory is device
+memory until the program turns the MMU on), and the start code must enable
+the FP/SIMD registers before using them, as the pathfinder's does.</p>
 <p>Still to come (ADR-0057): placing functions and statics in a region
-(<code>@place</code>), a freestanding runtime so strings and <code>println</code> work, proven
-stack bounds, and boards as packages.</p>
+(<code>@place</code>), proven stack bounds, and boards as packages.</p>
 <h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
 <p>Today a dependency is a <strong>local path</strong> to another project. Its <code>src/</code>
 directory becomes an import root:</p>
