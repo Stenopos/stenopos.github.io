@@ -3654,8 +3654,9 @@ from another module like a function.</p>
 no result, and no parameters or, as <code>main</code> does, the <code>Board</code>, so a timer's
 handler can re-arm its timer. It is ordinary, checked Stenopos. The
 compiler writes its <strong>entry</strong>, which saves the registers the handler may
-change (and the FP/SIMD state where the target has it), calls it, restores
-them and returns from the exception (<code>mret</code>, <code>eret</code>, <code>iretq</code>).
+change (the FP/SIMD state too when the board uses its FPU: see
+<a href="../../toolchain/tagma/#float64-on-a-board">float64 on a board</a>), calls it,
+restores them and returns from the exception (<code>mret</code>, <code>eret</code>, <code>iretq</code>).
 <code>interrupt_entry(f)</code> is the entry's address, a <code>uint64</code>, for the board's
 code to install: in <code>mtvec</code> on RISC-V, as a branch in the vector table on
 ARM64, in an IDT gate on x86-64. On RISC-V (QEMU's virt board):</p>
