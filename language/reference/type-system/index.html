@@ -3441,6 +3441,12 @@
 </code></pre></div>
 <p>Integer casts are exact or truncating as the widths require: widening a signed
 value sign-extends, widening an unsigned one zero-extends.</p>
+<p>A widening that keeps every value happens without a cast (ADR-0044 D3): to a
+wider type of the same signedness, or from an unsigned type to a wider signed
+one. Where two integer types meet (an operator, an assignment, an argument, a
+return, a range's ends), the narrower widens; when neither holds every value
+of the other (<code>int32</code> and <code>uint32</code>, <code>int64</code> and <code>uint64</code>), it is an error that
+says so.</p>
 <p><em>Coming in 1.0:</em> <code>unsafe_cast[T](val)</code> (reinterpret, inside <code>unsafe</code>) and
 <code>const_cast[T](val)</code>.</p>
 <h2 id="type-aliases">Type aliases<a class="headerlink" href="#type-aliases" title="Permanent link">&para;</a></h2>

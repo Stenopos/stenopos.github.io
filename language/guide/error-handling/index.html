@@ -3448,7 +3448,7 @@ are freed, so cleanup can still use them.</p>
 </code></pre></div>
 <p><code>defer</code> is <strong>block-scoped</strong>: a <code>defer</code> inside a loop body fires at the end of
 each iteration, not all at once when the function returns.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>for (i in 0..2) {
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>for (i in 0..=2) {
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    defer println("close {i}")
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    println("open {i}")
 <a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>}

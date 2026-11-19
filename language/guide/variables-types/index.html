@@ -3641,10 +3641,26 @@ hex and binary may use <code>_</code> to group digits (<code>_</code> in decimal
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    return 0
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>}
 </code></pre></div>
-<p>No implicit numeric conversions. Use <code>cast[T]()</code> to convert explicitly:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>int32 x = 42
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>int64 y = cast[int64](x)
+<p>An integer <strong>widens</strong> by itself to a type that holds every one of its values
+(ADR-0044 D3): <code>int32</code> to <code>int64</code>, <code>uint32</code> to <code>uint64</code> or <code>int64</code>, <code>uint8</code> to
+<code>uint16</code>, <code>int32</code> and the rest, in assignments, arguments, returns, arithmetic
+and comparisons. Nothing else converts implicitly: not narrowing, not between
+signed and unsigned of one width, not between integers and <code>float64</code>. Use
+<code>cast[T]()</code> for those:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>func main() -&gt; int32 {
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    List[str] words = ["one", "two", "three"]
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    int32 i = 0
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    while (i &lt; words.len()) {       // i widens to int64, as len() is
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        i += 1
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    }
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    int64 total = i                 // widening: no cast
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    int32 back = cast[int32](total) // narrowing: a cast
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    uint32 u = 7
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    println("{total} {back} {total + u} {cast[int32](u) + i}")
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    return 0
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>}
 </code></pre></div>
+<p>From rc.8; before, every conversion took a cast.</p>
 <h2 id="integer-overflow-is-checked">Integer overflow is checked<a class="headerlink" href="#integer-overflow-is-checked" title="Permanent link">&para;</a></h2>
 <p>Arithmetic that overflows its type is a bug — and a frequent source of security
 holes, where a wrapped size calculation leads to an undersized buffer. Stenopos

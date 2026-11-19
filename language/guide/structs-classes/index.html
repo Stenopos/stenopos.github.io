@@ -3436,6 +3436,9 @@ unknown name as <code>int32</code>.)</p>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    }
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>}
 </code></pre></div>
+<p>A type's methods are written inside it, and only there: <code>impl</code> is for
+implementing a trait (below). A separate <code>impl Point { ... }</code> block is an
+error that says where the methods go (ADR-0044 D7, from rc.8).</p>
 <h2 id="generic-structs">Generic structs<a class="headerlink" href="#generic-structs" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>struct Pair[A, B] {
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    A first
