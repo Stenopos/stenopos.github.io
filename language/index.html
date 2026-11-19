@@ -3195,9 +3195,8 @@ semicolons, and it makes security part of the type system:</p>
 <ul>
 <li><strong>Memory safety without a garbage collector.</strong> NOVA ownership tracking frees
   memory at compile-time-known points and rules out use-after-free and
-  double frees for everything the test corpus covers. One gap remains: using
-  a value after <code>send</code> moved it is not refused yet (it crashes cleanly at
-  run time; the compile-time check is planned). Threads share state only
+  double frees for everything the test corpus covers. Using a value after
+  <code>send</code> moved it is a compile error (from rc.8). Threads share state only
   through <code>chan</code>, <code>atomic</code> and the locks; a data-race-freedom guarantee is
   planned, not yet checked.</li>
 <li><strong>Taint tracking.</strong> For functions you mark <code>@tainted</code> (sources) and <code>@sink</code>,
