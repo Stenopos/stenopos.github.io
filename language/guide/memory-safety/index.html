@@ -3478,6 +3478,12 @@ safe; the compiler already avoids the copy when <code>a</code> is not used again
 <p><code>x.clone()</code> makes an independent deep copy of a string, list, map or struct
 (from rc.8). It is how a program keeps a value it hands on once handing on
 moves (ADR-0040): <code>c.send(job.clone())</code> sends a copy and keeps <code>job</code>.</p>
+<p><code>x.take()</code> moves a string, list or map out of a variable or a field without
+copying it, and leaves an empty one in its place: <code>str name = job.name.take()</code>.
+Nothing of the value stays behind, so it is the way to hand on a secret.
+Clone when you want two copies; take when you want the value somewhere else
+and none left behind. Freed memory can be wiped too: see
+<a href="../../toolchain/tagma/#wiping-freed-memory">Wiping freed memory</a>.</p>
 <h3 id="parameters-borrow">Parameters borrow<a class="headerlink" href="#parameters-borrow" title="Permanent link">&para;</a></h3>
 <p>Passing a struct, list or map to a function doesn't copy it: the parameter
 <strong>borrows</strong> the caller's value for the length of the call. A function that

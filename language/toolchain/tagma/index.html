@@ -1541,6 +1541,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#wiping-freed-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wiping freed memory
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#stack-size" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3359,6 +3370,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#wiping-freed-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wiping freed memory
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#stack-size" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3479,6 +3501,8 @@
       
         
       
+        
+      
     
   
   
@@ -3503,6 +3527,10 @@
       </li>
       
       <li><a href="#build-profiles">Build profiles</a>
+        
+      </li>
+      
+      <li><a href="#wiping-freed-memory">Wiping freed memory</a>
         
       </li>
       
@@ -3559,7 +3587,7 @@
 <tbody>
 <tr>
 <td><code>tagma new &lt;name&gt;</code></td>
-<td>Create <code>&lt;name&gt;/</code> with <code>Tagma.toml</code>, <code>src/main.sten</code> and <code>.gitignore</code></td>
+<td>Create <code>&lt;name&gt;/</code> with <code>Tagma.toml</code>, <code>src/main.sten</code>, a module <code>src/&lt;name&gt;.sten</code> with a unit test beside its code, a test of it in <code>tests/</code>, and <code>.gitignore</code>; <code>tagma run</code> and <code>tagma test</code> work at once</td>
 </tr>
 <tr>
 <td><code>tagma build [--release] [--target &lt;arch&gt;]</code></td>
@@ -3700,12 +3728,30 @@ failure is never hidden.</p>
 <code>tagma build --release</code> makes an optimized, stripped build that reads like a
 generic C binary. Every build is hardened: position-independent, full
 RELRO, a non-executable stack and stack protection.</p>
+<h2 id="wiping-freed-memory">Wiping freed memory<a class="headerlink" href="#wiping-freed-memory" title="Permanent link">&para;</a></h2>
+<p><code>@sensitive</code> and <code>secret[T]</code> values are always zeroed when they are freed.
+A program can ask for every freed block to be zeroed, so that nothing it
+ever held stays readable in freed memory, whether or not it was marked:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">[build]</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">wipe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"all"</span><span class="w">                 </span><span class="c1"># or "secrets", the default</span>
+</code></pre></div>
+<p>or <code>stenopos build --wipe all</code> for a single file. With <code>all</code>, every free
+zeroes the block first, and a buffer that grows (a string being built, a
+list being pushed to) is moved by copying and wiping the old block, never
+left behind by <code>realloc</code>. Large blocks that have their own memory mapping
+are wiped only where their pages are resident, so wiping never adds memory.
+It costs nothing for code that computes; code that allocates and frees a
+lot runs measurably slower (4% to 35% on the benchmarks; the default costs nothing), which
+is why it isn't the default yet. ADR-0040 has the measurements.</p>
+<p>From rc.8. The runtime is built once per mode; when its install directory
+isn't writable (an install under <code>/usr/local</code>), the built runtime goes in
+<code>~/.cache/stenopos</code> (rc.7 stopped with "Permission denied" there).</p>
 <h2 id="stack-size">Stack size<a class="headerlink" href="#stack-size" title="Permanent link">&para;</a></h2>
 <p>A program's main thread gets the system's stack, as a C program does:
 usually 8 MiB (<code>ulimit -s</code> shows it). A program that recurses deeply (a
 parser of deeply nested input, a recursive search) can ask for more:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">[build]</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">stack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"256MiB"</span><span class="w">             </span><span class="c1"># a number of bytes, or with KiB, MiB or GiB</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">[build]</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">stack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"256MiB"</span><span class="w">             </span><span class="c1"># a number of bytes, or with KiB, MiB or GiB</span>
 </code></pre></div>
 <p>or <code>stenopos build --stack 256MiB</code> for a single file. The program then
 raises its limit and starts itself again before <code>main</code>, once; a program
@@ -3723,25 +3769,25 @@ tagma builds it freestanding, writes its linker script, and hands <code>main</co
 the board's devices. The program runs on the <strong>board runtime</strong>, written in
 Stenopos, so strings, lists and <code>println</code> work as they do on a host. From
 rc.8 (ADR-0057, ADR-0058):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">[target]</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">kind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"firmware"</span><span class="w">                 </span><span class="c1"># no OS, no C library</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">arch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"riscv64"</span><span class="w">                  </span><span class="c1"># riscv64, aarch64 or x86_64</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">console</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">device</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"uart0"</span><span class="p">,</span><span class="w"> </span><span class="n">put</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"uart.put"</span><span class="w"> </span><span class="p">}</span><span class="w">        </span><span class="c1"># println, a failed check</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">halt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">device</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"power"</span><span class="p">,</span><span class="w"> </span><span class="n">call</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"sifive.power_off"</span><span class="w"> </span><span class="p">}</span><span class="w">  </span><span class="c1"># optional</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"software"</span><span class="w">                </span><span class="c1"># or "hardware": the FPU; optional</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="k">[memory]</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="n">ram</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">origin</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mh">0x8000_0000</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"128MiB"</span><span class="p">,</span><span class="w"> </span><span class="n">kind</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"code"</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="k">[layout]</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="n">code</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"ram"</span><span class="w">                     </span><span class="c1"># code and constants</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="n">data</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"ram"</span><span class="w">                     </span><span class="c1"># statics</span>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="n">stack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"ram"</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"64KiB"</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="n">heap</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"ram"</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"1MiB"</span><span class="w"> </span><span class="p">}</span><span class="w">    </span><span class="c1"># strings and lists; optional</span>
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="k">[devices]</span>
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="n">uart0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"uart.Ns16550"</span><span class="p">,</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mh">0x1000_0000</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="n">power</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"sifive.SifiveTest"</span><span class="p">,</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mh">0x10_0000</span><span class="w"> </span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">[target]</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">kind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"firmware"</span><span class="w">                 </span><span class="c1"># no OS, no C library</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">arch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"riscv64"</span><span class="w">                  </span><span class="c1"># riscv64, aarch64 or x86_64</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">console</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">device</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"uart0"</span><span class="p">,</span><span class="w"> </span><span class="n">put</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"uart.put"</span><span class="w"> </span><span class="p">}</span><span class="w">        </span><span class="c1"># println, a failed check</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">halt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">device</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"power"</span><span class="p">,</span><span class="w"> </span><span class="n">call</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"sifive.power_off"</span><span class="w"> </span><span class="p">}</span><span class="w">  </span><span class="c1"># optional</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="n">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"software"</span><span class="w">                </span><span class="c1"># or "hardware": the FPU; optional</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="k">[memory]</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="n">ram</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">origin</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mh">0x8000_0000</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"128MiB"</span><span class="p">,</span><span class="w"> </span><span class="n">kind</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"code"</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="k">[layout]</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="n">code</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"ram"</span><span class="w">                     </span><span class="c1"># code and constants</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="n">data</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"ram"</span><span class="w">                     </span><span class="c1"># statics</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="n">stack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"ram"</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"64KiB"</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="n">heap</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"ram"</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"1MiB"</span><span class="w"> </span><span class="p">}</span><span class="w">    </span><span class="c1"># strings and lists; optional</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="k">[devices]</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="n">uart0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"uart.Ns16550"</span><span class="p">,</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mh">0x1000_0000</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="n">power</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"sifive.SifiveTest"</span><span class="p">,</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mh">0x10_0000</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 <ul>
 <li><strong><code>[memory]</code></strong> names the board's regions: each has an <code>origin</code>, a <code>size</code>
@@ -3755,9 +3801,9 @@ rc.8 (ADR-0057, ADR-0058):</p>
   <code>target/&lt;profile&gt;/link.ld</code>: nobody writes one. A region that overflows
   fails the build, naming it, and every build reports each region's use:</li>
 </ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>   Compiling pathfinder v0.1.0 (release)
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>      Memory ram      64.5 KiB of 128 MiB (0.0%)
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    Finished target/release/pathfinder
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>   Compiling pathfinder v0.1.0 (release)
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>      Memory ram      64.5 KiB of 128 MiB (0.0%)
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    Finished target/release/pathfinder
 </code></pre></div>
 <ul>
 <li><strong><code>[devices]</code></strong> binds each device to an address: its <code>type</code> is a
@@ -3768,12 +3814,12 @@ rc.8 (ADR-0057, ADR-0058):</p>
 <p>The devices reach the program as a value. tagma writes
 <code>target/board.sten</code> on every build (a real file, to read; not to edit),
 with a <code>Board</code> that has one field per device, and <code>main</code> receives it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>import board.{Board}
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>import uart.{Ns16550, put}
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>func main(Board board) -&gt; void {
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    put(board.uart0, 65)          // board.uart0: the UART at 0x1000_0000
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>import board.{Board}
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>import uart.{Ns16550, put}
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>func main(Board board) -&gt; void {
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    put(board.uart0, 65)          // board.uart0: the UART at 0x1000_0000
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>}
 </code></pre></div>
 <p>Using <code>board.uart0</code> needs no <code>unsafe</code>: the address is <code>Tagma.toml</code>'s,
 reviewed with the board, and each device is a constant address, so the
@@ -3782,28 +3828,28 @@ a <code>@board</code>; a program that binds a device itself does so with
 <code>registers_at</code> inside <code>unsafe</code>. <code>src/board.sten</code> is refused, since
 <code>board</code> is the generated module's name.</p>
 <p><code>tagma board</code> shows it all, with where each part comes from:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Board: firmware for riscv64 (Tagma.toml:7)
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>Memory
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>  ram        0x80000000     128 MiB    code   Tagma.toml:12
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>Layout
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>  code    ram
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>  data    ram
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>  stack   ram, 64 KiB
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>  heap    ram, 1 MiB at 0x87f00000
-<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
-<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>Runtime
-<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>  console  uart.put on uart0   Tagma.toml:8
-<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>  halt     sifive.power_off on power   Tagma.toml:9
-<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>
-<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>Devices
-<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>  uart0      uart.Ns16550         0x10000000     Tagma.toml:20
-<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>      used at src/main.sten:22: put(board.uart0, 65)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Board: firmware for riscv64 (Tagma.toml:7)
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>Memory
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>  ram        0x80000000     128 MiB    code   Tagma.toml:12
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>Layout
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>  code    ram
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>  data    ram
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>  stack   ram, 64 KiB
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>  heap    ram, 1 MiB at 0x87f00000
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>Runtime
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>  console  uart.put on uart0   Tagma.toml:8
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>  halt     sifive.power_off on power   Tagma.toml:9
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>Devices
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>  uart0      uart.Ns16550         0x10000000     Tagma.toml:20
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>      used at src/main.sten:22: put(board.uart0, 65)
 </code></pre></div>
 <p>Every problem names its line:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Tagma.toml:20: device `uart0` at 0x80001000 is inside region `ram` (Tagma.toml:12)
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>error[E0300]: `board.uart1` doesn't exist: Tagma.toml declares uart0, power
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>Tagma.toml:20: device `uart0` at 0x80001000 is inside region `ram` (Tagma.toml:12)
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>error[E0300]: `board.uart1` doesn't exist: Tagma.toml declares uart0, power
 </code></pre></div>
 <p>The program brings its
 own start-up code (a <code>@naked</code> <code>_start</code> in section <code>.text.start</code>, which the
@@ -3855,32 +3901,32 @@ memory until the program turns the MMU on).</p>
 <h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
 <p>Today a dependency is a <strong>local path</strong> to another project. Its <code>src/</code>
 directory becomes an import root:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>util/src/lib.sten        module util ... pub func greet(str who) -&gt; str
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>hello/src/main.sten      import util.{greet}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>util/src/lib.sten        module util ... pub func greet(str who) -&gt; str
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>hello/src/main.sten      import util.{greet}
 </code></pre></div>
 <p>Registry packages are added with <code>tagma add</code>; see
 <a href="../packages/">Packages and the registry</a>.</p>
 <h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>// tests/math.sten
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>@test
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>func adds() -&gt; void {
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    if (1 + 1 != 2) {
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>        fail("math is broken")
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    }
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>// tests/math.sten
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>@test
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>func adds() -&gt; void {
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    if (1 + 1 != 2) {
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>        fail("math is broken")
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    }
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>}
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>tagma<span class="w"> </span><span class="nb">test</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>tagma<span class="w"> </span><span class="nb">test</span>
 </code></pre></div>
 <p>A test in <code>tests/</code> imports the project's own modules (<code>import dotenv.{parse}</code>
 for a library whose <code>src/lib.sten</code> is <code>module dotenv</code>). A test function that
 needs a capability declares it, like any function:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>@cap(File)
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>@test
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>func reads_config() -&gt; void {
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    if (read_file("Tagma.toml") == "") {
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>        fail("no manifest")
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    }
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>@cap(File)
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>@test
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>func reads_config() -&gt; void {
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    if (read_file("Tagma.toml") == "") {
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>        fail("no manifest")
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>    }
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>}
 </code></pre></div>
 <h2 id="single-files">Single files<a class="headerlink" href="#single-files" title="Permanent link">&para;</a></h2>
 <p><code>stenopos</code> keeps its single-file commands (<code>stenopos run file.sten</code>, <code>build</code>,
