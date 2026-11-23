@@ -1874,6 +1874,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#secrets-stay-out-of-the-stack-swap-and-core-dumps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secrets stay out of the stack, swap and core dumps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#parameters-borrow" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3283,6 +3294,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#secrets-stay-out-of-the-stack-swap-and-core-dumps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secrets stay out of the stack, swap and core dumps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#parameters-borrow" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3400,6 +3422,8 @@
         
         <ul>
           
+          <li><a href="#secrets-stay-out-of-the-stack-swap-and-core-dumps">Secrets stay out of the stack, swap and core dumps</a></li>
+          
           <li><a href="#parameters-borrow">Parameters borrow</a></li>
           
         </ul>
@@ -3484,6 +3508,27 @@ Nothing of the value stays behind, so it is the way to hand on a secret.
 Clone when you want two copies; take when you want the value somewhere else
 and none left behind. Freed memory can be wiped too: see
 <a href="../../toolchain/tagma/#wiping-freed-memory">Wiping freed memory</a>.</p>
+<h3 id="secrets-stay-out-of-the-stack-swap-and-core-dumps">Secrets stay out of the stack, swap and core dumps<a class="headerlink" href="#secrets-stay-out-of-the-stack-swap-and-core-dumps" title="Permanent link">&para;</a></h3>
+<p>A value marked <code>@sensitive</code> (or of a <code>secret[T]</code> type) is protected wherever
+the language can protect it (from rc.8):</p>
+<ul>
+<li><strong>Freed:</strong> its bytes are zeroed first.</li>
+<li><strong>Swap:</strong> while a <code>@sensitive</code> variable holds a value, the pages that
+  hold its bytes are locked in RAM, so the system never writes them to
+  swap. They are unlocked when the variable lets go. Locking is limited by
+  the system's <code>RLIMIT_MEMLOCK</code> (<code>ulimit -l</code>); past it, a page stays
+  unlocked.</li>
+<li><strong>Core dumps:</strong> a program that has any secret turns its own core dumps
+  off when it starts, and on Linux other users' debuggers can't attach to
+  it, so no copy of a secret, a temporary one included, reaches a dump
+  file.</li>
+<li><strong>The stack:</strong> after calling a function that holds a secret, the caller
+  zeroes the stack below it, which removes the callee's locals, the copies
+  the compiler spilled there and everything the callee's own callees left.</li>
+</ul>
+<p>What no language can do is erase a file: on SSDs and journaling file
+systems, deleting or overwriting it doesn't reliably remove the old bytes.
+Store secrets encrypted instead.</p>
 <h3 id="parameters-borrow">Parameters borrow<a class="headerlink" href="#parameters-borrow" title="Permanent link">&para;</a></h3>
 <p>Passing a struct, list or map to a function doesn't copy it: the parameter
 <strong>borrows</strong> the caller's value for the length of the call. A function that
