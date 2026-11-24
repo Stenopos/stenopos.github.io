@@ -1874,6 +1874,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#loop-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Loop variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#secrets-stay-out-of-the-stack-swap-and-core-dumps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3294,6 +3305,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#loop-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Loop variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#secrets-stay-out-of-the-stack-swap-and-core-dumps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3422,6 +3444,8 @@
         
         <ul>
           
+          <li><a href="#loop-variables">Loop variables</a></li>
+          
           <li><a href="#secrets-stay-out-of-the-stack-swap-and-core-dumps">Secrets stay out of the stack, swap and core dumps</a></li>
           
           <li><a href="#parameters-borrow">Parameters borrow</a></li>
@@ -3521,6 +3545,29 @@ returns it, sends it, or passes it to another function that keeps it); the
 compiler works this out from the function's body, across the program. After
 <code>keep(x)</code>, <code>x</code> is moved; after <code>show(x)</code>, a function that only reads it, it
 isn't. <code>c.send(job.clone())</code> sends a copy and keeps <code>job</code>.</p>
+<h3 id="loop-variables">Loop variables<a class="headerlink" href="#loop-variables" title="Permanent link">&para;</a></h3>
+<p><code>for (s in names)</code> doesn't copy each element: <code>s</code> is a <strong>view</strong> of the
+element, which the list still owns. Reading it costs nothing; handing it to a
+new owner needs <code>s.clone()</code>, and changing it (assigning it, setting a field,
+<code>s.items.push(..)</code>, or passing it to a function that changes it) is an error,
+since it would change the list:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>struct P {
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    str name
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>}
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>func main() -&gt; void {
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    List[P] ps = [P { name: "a" }]
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    List[str] names = list_new()
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    for (p in ps) {
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>        println(p.name)              // a read: no copy
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        names.push(p.name.clone())   // a new owner: say so
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        // p.name = "b"              // error: `p` is a view of the list's element
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    }
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>}
+</code></pre></div>
+<p>When the loop's body changes the list it iterates (pushes to it, sets an
+element, passes it to a function that changes it), each element is copied
+instead, so the loop variable never points into memory the change moved.</p>
 <p>Code written before rc.8 can be migrated: <code>STENOPOS_MOVES=report stenopos
 build ...</code> prints, instead of each error, a warning naming the token after
 which <code>.clone()</code> keeps the old behaviour.</p>
@@ -3556,22 +3603,22 @@ Store secrets encrypted instead.</p>
 <strong>borrows</strong> the caller's value for the length of the call. A function that
 changes its parameter changes the caller's value, just as a method changes
 <code>this</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>struct Account {
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    str owner
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    float64 balance
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>}
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>func transfer(Account from, Account to, float64 amount) -&gt; void {
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    from.balance = from.balance - amount
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    to.balance = to.balance + amount
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>}
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>func main() -&gt; void {
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    Account a = Account { owner: "ana", balance: 100.0 }
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    Account b = Account { owner: "ben", balance: 0.0 }
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    transfer(a, b, 30.0)
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>    println("{a.balance} {b.balance}")   // 70 30
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>struct Account {
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    str owner
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    float64 balance
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>}
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>func transfer(Account from, Account to, float64 amount) -&gt; void {
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    from.balance = from.balance - amount
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    to.balance = to.balance + amount
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>}
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>func main() -&gt; void {
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>    Account a = Account { owner: "ana", balance: 100.0 }
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>    Account b = Account { owner: "ben", balance: 0.0 }
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>    transfer(a, b, 30.0)
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>    println("{a.balance} {b.balance}")   // 70 30
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>}
 </code></pre></div>
 <p>Assigning to the parameter itself (<code>from = Account { ... }</code>) only rebinds the
 name inside the function; the caller's value is untouched. Returning a
@@ -3581,10 +3628,10 @@ another argument of the same call: both parameters would name the same value,
 and a <code>push</code> through one could move the memory the other is reading. The
 compiler works out which parameters each function changes (following the
 calls it makes), and rejects the call:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>transfer(a, a, 30.0)
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>// error: `a` is passed to `transfer` twice, and `transfer` changes its
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>// parameter `from`, so two parameters would borrow the same value; pass
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>// a copy instead: `Account a_copy = a`
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>transfer(a, a, 30.0)
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>// error: `a` is passed to `transfer` twice, and `transfer` changes its
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>// parameter `from`, so two parameters would borrow the same value; pass
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>// a copy instead: `Account a_copy = a`
 </code></pre></div>
 <p>The same goes for a value and a field inside it (<code>f(a, a.items)</code>) and for a
 method's receiver (<code>a.merge(a)</code>). Strings and numbers are passed by value, so
@@ -3602,10 +3649,10 @@ it, with no copy. The compiler infers this without any annotation, as it
 already infers which parameters are changed. <code>spawn</code> takes its arguments
 instead of copying them, and a clone of a <code>@sensitive</code> or <code>secret</code> value
 stays protected.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>str a = "hello"
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>str b = a          // a moves into b
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>println(a)         // error: use of moved value `a`
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>str c = b.clone()  // an explicit, independent copy
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>str a = "hello"
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>str b = a          // a moves into b
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>println(a)         // error: use of moved value `a`
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>str c = b.clone()  // an explicit, independent copy
 </code></pre></div>
 <p>Moves make transfers free (no hidden copies), let messages and channels
 hand data over without copying, and let capabilities be values that can't
@@ -3613,14 +3660,14 @@ be duplicated.</p>
 </div>
 <h2 id="raw-pointers">Raw pointers<a class="headerlink" href="#raw-pointers" title="Permanent link">&para;</a></h2>
 <p>For talking to C, raw pointers exist, confined to <code>unsafe</code> blocks:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>func main() -&gt; void {
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    int32 x = 41
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    unsafe {
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        ptr[int32] p = &amp;x
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        *p = *p + 1
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    }
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    println("{x}")     // 42
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>func main() -&gt; void {
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    int32 x = 41
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    unsafe {
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>        ptr[int32] p = &amp;x
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>        *p = *p + 1
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    }
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    println("{x}")     // 42
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>}
 </code></pre></div>
 <p>Everything that makes or uses a pointer needs <code>unsafe</code> (ADR-0041): taking
 an address (<code>&amp;x</code>), reading or writing through one (<code>*p</code>), casting to or from
@@ -3632,35 +3679,35 @@ and it converts back only by a cast. C's narrow integers (<code>uint8</code>, <c
 <code>uint16</code>, <code>int16</code>) have no Stenopos type of their own: through a
 <code>ptr[uint8]</code>, <code>*p</code> reads an <code>int32</code> and a store keeps the low byte. <code>&amp;s</code> of a
 struct is the address of its fields, which is what C's <code>struct T *</code> means.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>extern "C" {
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    func malloc(uint64 size) -&gt; ptr[void]
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    func free(ptr[void] p) -&gt; void
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>}
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>func main() -&gt; void {
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    unsafe {
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>        ptr[int64] p = cast[ptr[int64]](malloc(8))     // ptr[void] -&gt; ptr[int64]
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>        if (p != cast[ptr[int64]](0)) {                 // null is cast[ptr[T]](0)
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>            *p = 5000000000
-<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>            println("{*p} at {cast[uint64](p)}")       // an address is a uint64
-<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>            free(p)
-<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>        }
-<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>    }
-<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>extern "C" {
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    func malloc(uint64 size) -&gt; ptr[void]
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    func free(ptr[void] p) -&gt; void
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>}
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>func main() -&gt; void {
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    unsafe {
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>        ptr[int64] p = cast[ptr[int64]](malloc(8))     // ptr[void] -&gt; ptr[int64]
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>        if (p != cast[ptr[int64]](0)) {                 // null is cast[ptr[T]](0)
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>            *p = 5000000000
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>            println("{*p} at {cast[uint64](p)}")       // an address is a uint64
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>            free(p)
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>        }
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>    }
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>}
 </code></pre></div>
 <p>A device register is memory that acts: writing a UART's data register sends
 a byte, and its status register changes on its own. <code>volatile_read(p)</code> and
 <code>volatile_write(p, v)</code> are <code>*p</code> and <code>*p = v</code> that the compiler performs
 exactly as written, once each and in order, even when nothing reads the value
 back (which would otherwise let the optimizer drop the write):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>func put(uint8 c) -&gt; void {
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    unsafe {
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>        ptr[uint8] status = cast[ptr[uint8]](cast[uint64](0x10000005))
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>        while ((volatile_read(status) &amp; 32) == 0) {      // wait until it can send
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>        }
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>        volatile_write(cast[ptr[uint8]](cast[uint64](0x10000000)), c)
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    }
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>func put(uint8 c) -&gt; void {
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    unsafe {
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>        ptr[uint8] status = cast[ptr[uint8]](cast[uint64](0x10000005))
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>        while ((volatile_read(status) &amp; 32) == 0) {      // wait until it can send
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>        }
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>        volatile_write(cast[ptr[uint8]](cast[uint64](0x10000000)), c)
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    }
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>}
 </code></pre></div>
 <p>Volatile keeps the compiler's order, not the processor's: for that, see
 <a href="#interrupts-statics-and-fences">fences</a>.</p>
@@ -3671,24 +3718,24 @@ read an <code>int32</code> whatever <code>T</code> was, and there was no volatil
 <p>Raw addresses, widths and casts repeated through every driver are where a
 wrong offset hides. A <strong>register block</strong> describes a device's registers once,
 by offset, width and access (ADR-0058):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>@registers
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>struct Ns16550 {
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    @at(0x0) write uint8 thr      // transmit holding: a byte written is sent
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    @at(0x1) uint8 ier            // interrupt enable: read and written
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    @at(0x5) read uint8 lsr       // line status: bit 5, ready for a byte
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>}
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>func uart() -&gt; Ns16550 {
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>    unsafe {
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>        return registers_at[Ns16550](0x10000000)   // the one unsafe fact
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    }
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>}
-<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>
-<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>func put(Ns16550 u, uint8 c) -&gt; void {
-<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>    while ((u.lsr &amp; 32) == 0) {          // one volatile 8-bit read per test
-<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>    }
-<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>    u.thr = c                            // one volatile 8-bit write
-<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>@registers
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>struct Ns16550 {
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    @at(0x0) write uint8 thr      // transmit holding: a byte written is sent
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    @at(0x1) uint8 ier            // interrupt enable: read and written
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    @at(0x5) read uint8 lsr       // line status: bit 5, ready for a byte
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>}
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>func uart() -&gt; Ns16550 {
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>    unsafe {
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>        return registers_at[Ns16550](0x10000000)   // the one unsafe fact
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>    }
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>}
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>func put(Ns16550 u, uint8 c) -&gt; void {
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>    while ((u.lsr &amp; 32) == 0) {          // one volatile 8-bit read per test
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>    }
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>    u.thr = c                            // one volatile 8-bit write
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>}
 </code></pre></div>
 <ul>
 <li><code>@at(offset)</code> places each register, in bytes from the block's address. A
@@ -3722,21 +3769,21 @@ constant first value. Reading or writing one is <code>unsafe</code>, since an
 interrupt can change it between two instructions and nothing makes that
 safe until M6's atomics. Every access is volatile, so a loop waiting for
 an interrupt reads it each time round:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>static uint64 ticks = 0
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>func tick() -&gt; void {
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    unsafe {
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>        ticks += 1
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    }
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>}
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>func main() -&gt; void {
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>    tick()
-<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>    tick()
-<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>    unsafe {
-<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>        println("{ticks} ticks")      // 2 ticks
-<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>    }
-<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>static uint64 ticks = 0
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>func tick() -&gt; void {
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    unsafe {
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>        ticks += 1
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    }
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>}
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>func main() -&gt; void {
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>    tick()
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>    tick()
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>    unsafe {
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>        println("{ticks} ticks")      // 2 ticks
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>    }
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>}
 </code></pre></div>
 <p>A local of the same name hides a static. A <code>pub static</code> can be imported
 from another module like a function.</p>
@@ -3750,29 +3797,29 @@ restores them and returns from the exception (<code>mret</code>, <code>eret</cod
 <code>interrupt_entry(f)</code> is the entry's address, a <code>uint64</code>, for the board's
 code to install: in <code>mtvec</code> on RISC-V, as a branch in the vector table on
 ARM64, in an IDT gate on x86-64. On RISC-V (QEMU's virt board):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>@interrupt
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>func on_timer(Board board) -&gt; void {
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    unsafe {
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>        ticks += 1
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    }
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    arm(board.clint, 100000)         // the next one in 10 ms
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>}
-<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>
-<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>func take_ticks(Board board) -&gt; void {
-<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>    uint64 entry = interrupt_entry(on_timer)
-<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>    arm(board.clint, 100000)
-<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>    unsafe {
-<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>        asm {
-<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>            "csrw mtvec, %0"         // interrupts run on_timer's entry
-<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>            "li t0, 0x80"
-<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>            "csrs mie, t0"           // the timer's interrupt
-<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>            "csrsi mstatus, 0x8"     // interrupts on
-<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>            :
-<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>            : "r"(entry)
-<a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a>            : "t0"
-<a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a>        }
-<a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a>    }
-<a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>@interrupt
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>func on_timer(Board board) -&gt; void {
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    unsafe {
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>        ticks += 1
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    }
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    arm(board.clint, 100000)         // the next one in 10 ms
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>}
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>func take_ticks(Board board) -&gt; void {
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>    uint64 entry = interrupt_entry(on_timer)
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>    arm(board.clint, 100000)
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>    unsafe {
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>        asm {
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>            "csrw mtvec, %0"         // interrupts run on_timer's entry
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>            "li t0, 0x80"
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>            "csrs mie, t0"           // the timer's interrupt
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>            "csrsi mstatus, 0x8"     // interrupts on
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>            :
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>            : "r"(entry)
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a>            : "t0"
+<a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a>        }
+<a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a>    }
+<a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a>}
 </code></pre></div>
 <p><code>@interrupt</code> is for freestanding programs. The interrupt controller
 (acknowledging, priorities, nesting) is the program's, written with
@@ -3790,16 +3837,16 @@ strongest; lighter ones can come when a measurement asks for them.</p>
 <p>From rc.8. Still to come with M6: atomics, so a counter shared with a
 handler needs no <code>unsafe</code>.</p>
 <h2 id="calling-c">Calling C<a class="headerlink" href="#calling-c" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>extern "C" {
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    func abs(int32 n) -&gt; int32
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    func labs(int64 n) -&gt; int64
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>}
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>func main() -&gt; void {
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    unsafe {
-<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>        println("{abs(0 - 7)} {labs(0 - 9)}")
-<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>    }
-<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>extern "C" {
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    func abs(int32 n) -&gt; int32
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    func labs(int64 n) -&gt; int64
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>}
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>func main() -&gt; void {
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>    unsafe {
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>        println("{abs(0 - 7)} {labs(0 - 9)}")
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>    }
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>}
 </code></pre></div>
 <p>From rc.8 a C function can take and return any of these, mixed freely, and
 each call's arguments are checked against them like any other call's:</p>
@@ -3837,10 +3884,10 @@ each call's arguments are checked against them like any other call's:</p>
 </tr>
 </tbody>
 </table>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>extern "C" {
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    func strlen(str s) -&gt; uint64
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    func snprintf(ptr[uint8] buf, uint64 size, str fmt, ...) -&gt; int32
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>extern "C" {
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    func strlen(str s) -&gt; uint64
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    func snprintf(ptr[uint8] buf, uint64 size, str fmt, ...) -&gt; int32
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>}
 </code></pre></div>
 <p>A <code>str</code> with a NUL byte inside stops the program rather than reaching C:
 C would read only up to the NUL, and a path or a name cut short is a bug at
@@ -3853,17 +3900,17 @@ variable does not become an <code>int64</code> without <code>cast[int64]()</code
 pointers or enums can be a C function's parameter or result. How C passes
 structs differs on every architecture, so the call goes through a small C
 wrapper that the compiler writes and the target's own C compiler builds:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>@repr("C")
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>struct DivT {
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    int32 quot
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    int32 rem
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>}
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>extern "C" func div(int32 num, int32 den) -&gt; DivT
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>@repr("C")
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>struct DivT {
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    int32 quot
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    int32 rem
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>}
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>extern "C" func div(int32 num, int32 den) -&gt; DivT
 </code></pre></div>
 <p><strong>Callbacks.</strong> A parameter of a function type takes a named top-level
 function, which C calls through a plain function pointer:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>extern "C" func qsort(ptr[int32] base, uint64 n, uint64 size, fn(ptr[int32], ptr[int32]) -&gt; int32 compare) -&gt; void
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>extern "C" func qsort(ptr[int32] base, uint64 n, uint64 size, fn(ptr[int32], ptr[int32]) -&gt; int32 compare) -&gt; void
 </code></pre></div>
 <p>Its parameters and result must be ones C can pass (integers, <code>float64</code>,
 <code>bool</code> and pointers), and a lambda isn't accepted: its captured variables have
