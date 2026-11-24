@@ -3598,6 +3598,9 @@ instead, so the loop variable never points into memory the change moved.</p>
 <p>Code written before rc.8 can be migrated: <code>STENOPOS_MOVES=report stenopos
 build ...</code> prints, instead of each error, a warning naming the token after
 which <code>.clone()</code> keeps the old behaviour.</p>
+<p><code>xs.remove(i)</code> takes an element out of a list (closing the gap), and
+<code>m.remove(k)</code> takes a value out of a map (<code>null</code> when the key is absent):
+the caller owns what comes out, and nothing is copied.</p>
 <p><code>x.take()</code> moves a string, list or map out of a variable or a field without
 copying it, and leaves an empty one in its place: <code>str name = job.name.take()</code>.
 Nothing of the value stays behind, so it is the way to hand on a secret.

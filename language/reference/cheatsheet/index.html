@@ -3885,18 +3885,20 @@ function <code>@ignore_discard</code>. <em>(1.0)</em>: default and named argumen
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>int32 first = xs.first()
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>int32 last = xs.last()
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>int32 top = xs.pop()        // remove + return last
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>xs.sort()                   // integers and str
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>xs.reverse()
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>bool has = xs.contains(10)
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>int64 at = xs.index_of(10)  // first match, or -1
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>bool empty = xs.is_empty()
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>int64 n = xs.len()
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>xs.clear()
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>HashMap[str, int32] ages = map_new()
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>ages.insert("ada", 36)
-<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>int32 a = ages.get("ada")
-<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>bool known = ages.contains("ada")
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>int32 second = xs.remove(1) // take out the element at 1 (bounds-checked)
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>xs.sort()                   // integers and str
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>xs.reverse()
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>bool has = xs.contains(10)
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>int64 at = xs.index_of(10)  // first match, or -1
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>bool empty = xs.is_empty()
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>int64 n = xs.len()
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>xs.clear()
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>HashMap[str, int32] ages = map_new()
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>ages.insert("ada", 36)
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>int32 a = ages.get("ada")
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>bool known = ages.contains("ada")
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>int32? gone = ages.remove("ada")   // take the value out; null if absent
 </code></pre></div>
 <hr />
 <h2 id="structs-classes-enums">Structs, classes, enums<a class="headerlink" href="#structs-classes-enums" title="Permanent link">&para;</a></h2>
