@@ -3737,12 +3737,14 @@ ever held stays readable in freed memory, whether or not it was marked:</p>
 </code></pre></div>
 <p>or <code>stenopos build --wipe all</code> for a single file. With <code>all</code>, every free
 zeroes the block first, and a buffer that grows (a string being built, a
-list being pushed to) is moved by copying and wiping the old block, never
-left behind by <code>realloc</code>. Large blocks that have their own memory mapping
-are wiped only where their pages are resident, so wiping never adds memory.
-It costs nothing for code that computes; code that allocates and frees a
-lot runs measurably slower (4% to 35% on the benchmarks; the default costs nothing), which
-is why it isn't the default yet. ADR-0040 has the measurements.</p>
+list being pushed to) is never left behind by <code>realloc</code>: a small one is
+copied and the old block wiped, and a large one (128 KiB or more, on Linux
+with glibc) lives in its own memory mapping and grows by moving its pages,
+with no copy at all. Large blocks are wiped only where their pages are
+resident, so wiping never adds memory. It costs nothing for code that
+computes; code that allocates and frees a lot runs somewhat slower (4% to
+16% on the benchmarks; the default costs nothing), which is why it isn't
+the default. ADR-0040 has the measurements.</p>
 <p>From rc.8. The runtime is built once per mode; when its install directory
 isn't writable (an install under <code>/usr/local</code>), the built runtime goes in
 <code>~/.cache/stenopos</code> (rc.7 stopped with "Permission denied" there).</p>
