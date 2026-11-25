@@ -3566,18 +3566,14 @@ means the peer closed it.</p>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    return jobs                 // the caller owns it; the worker keeps running
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>}
 </code></pre></div>
-<div class="admonition warning">
-<p class="admonition-title">A channel a function keeps makes it wait (rc.7)</p>
-<p>In rc.7, a function that creates a channel, a lock or an atomic and
-does <strong>not</strong> return it waits, when it returns, for <strong>every task in the
-program</strong> to finish, not only the ones it started. In a service the
-accept loop never finishes, so such a function never returns: a
-request handler that makes a channel for its own use hangs. Create
-channels, locks and atomics in <code>main</code> or in a function that returns
-them (as above), and pass them to the functions and tasks that need
-them. rc.8 makes handles reference counted and removes this wait
-(<a href="https://github.com/Stenopos/design/blob/main/adr/0045-tasks-handles-cancellation-and-exit.md">ADR-0045</a>).</p>
-</div>
+<p>Channels, locks, semaphores and atomics are <strong>reference counted</strong> (from
+rc.8): the scope that creates one holds a reference, and so does each task
+it is given to. A function's end lets go of its reference and never waits:
+the handle lives on while a task still holds it. (In rc.7 such a function
+waited for every task in the program, so a request handler that made a
+channel for its own use hung in a service;
+<a href="https://github.com/Stenopos/design/blob/main/adr/0045-tasks-handles-cancellation-and-exit.md">ADR-0045</a>.)
+Only the end of <code>main</code> waits for tasks.</p>
 <h2 id="http">HTTP<a class="headerlink" href="#http" title="Permanent link">&para;</a></h2>
 <p><code>std.http</code> serves one connection per task. <code>serve(conn, limits())</code> reads
 requests (keep-alive included) and answers malformed or oversized ones
