@@ -3574,6 +3574,17 @@ waited for every task in the program, so a request handler that made a
 channel for its own use hung in a service;
 <a href="https://github.com/Stenopos/design/blob/main/adr/0045-tasks-handles-cancellation-and-exit.md">ADR-0045</a>.)
 Only the end of <code>main</code> waits for tasks.</p>
+<p>Keep a task to wait for it or stop it (from rc.8):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>task t = spawn worker(jobs)
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>// ...
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>t.cancel()                  // stop it: it unwinds at its next wait
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>bool finished = t.join()    // wait; true if its function returned
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>bool over = t.done()        // has it ended? (doesn't wait)
+</code></pre></div>
+<p>A cancelled task stops at its next waiting point (a channel, a socket, a
+timer, <code>join</code>): it unwinds like an exception that no <code>catch</code> takes, so its
+values are freed and its <code>defer</code> and <code>finally</code> blocks run. A task that never
+waits can't be cancelled.</p>
 <h2 id="http">HTTP<a class="headerlink" href="#http" title="Permanent link">&para;</a></h2>
 <p><code>std.http</code> serves one connection per task. <code>serve(conn, limits())</code> reads
 requests (keep-alive included) and answers malformed or oversized ones
@@ -3590,16 +3601,16 @@ header block and the body, and a connection cap, are planned.</p>
 errors around each request when one bad request shouldn't stop the service.</p>
 <p>The client is a separate module, <code>std.http.client</code>, so a server that never
 makes requests doesn't link OpenSSL:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>import std.http.client.{ClientRequest, request, get, post_json, fetch}
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>import std.tls.{pinned}
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>Response r = get("https://gitea.example.com/api/v1/version")
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>Response p = post_json("http://localhost:8080/jobs", "\{\"id\": 1\}")
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>ClientRequest q = request("GET", "https://10.0.0.1/api/self")
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>q.tls = pinned("5f:3a:...")             // a device with a self-signed certificate
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>q.headers.push("Cookie: TOKEN=...")
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>q.timeout_ms = 5000
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>Response s = fetch(q)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>import std.http.client.{ClientRequest, request, get, post_json, fetch}
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>import std.tls.{pinned}
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>Response r = get("https://gitea.example.com/api/v1/version")
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>Response p = post_json("http://localhost:8080/jobs", "\{\"id\": 1\}")
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>ClientRequest q = request("GET", "https://10.0.0.1/api/self")
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>q.tls = pinned("5f:3a:...")             // a device with a self-signed certificate
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>q.headers.push("Cookie: TOKEN=...")
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>q.timeout_ms = 5000
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>Response s = fetch(q)
 </code></pre></div>
 <p>A failure (refused, timed out, an untrusted certificate) throws, saying
 why; an HTTP error status is just a <code>Response</code> with that <code>status</code>.</p>
@@ -3619,12 +3630,12 @@ nothing is refused:</p>
 <h2 id="stopping">Stopping<a class="headerlink" href="#stopping" title="Permanent link">&para;</a></h2>
 <p>Kubernetes sends <strong>SIGTERM</strong>, waits (30 s by default), then sends SIGKILL.
 Deliver signals into a channel and finish what you are doing:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>chan[int32] stop = chan()
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>notify_signals([SIGTERM, SIGINT], stop)
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>// ... in the main loop:
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>if (stop.try_recv() != null) {
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    running = false
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>chan[int32] stop = chan()
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>notify_signals([SIGTERM, SIGINT], stop)
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>// ... in the main loop:
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>if (stop.try_recv() != null) {
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    running = false
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>}
 </code></pre></div>
 <p>Then end with <code>exit(0)</code>. Returning from <code>main</code> <strong>waits for every task</strong>,
 so work a program started is always finished, never cut off. A service's
@@ -3653,14 +3664,14 @@ argument is ever interpreted.</p>
 doesn't declare, so <code>tagma caps</code> lists exactly what a service can do, and a
 dependency gets only the capabilities its <code>allow</code> grants it.</p>
 <h2 id="building-and-running-it-in-a-container">Building and running it in a container<a class="headerlink" href="#building-and-running-it-in-a-container" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>tagma<span class="w"> </span>build<span class="w"> </span>--release<span class="w">                     </span><span class="c1"># target/release/&lt;name&gt;, stripped and hardened</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>tagma<span class="w"> </span>build<span class="w"> </span>--release<span class="w">                     </span><span class="c1"># target/release/&lt;name&gt;, stripped and hardened</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">FROM</span><span class="w"> </span><span class="s">debian:bookworm-slim</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">RUN</span><span class="w"> </span>apt-get<span class="w"> </span>update<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>--no-install-recommends<span class="w"> </span>ca-certificates<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>/var/lib/apt/lists/*<span class="w">           </span>#<span class="w"> </span>libssl3<span class="w"> </span><span class="k">for</span><span class="w"> </span>std.tls<span class="w"> </span>comes<span class="w"> </span>with<span class="w"> </span>it
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="k">COPY</span><span class="w"> </span>target/release/myservice<span class="w"> </span>/usr/local/bin/myservice
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="k">USER</span><span class="w"> </span><span class="s">65534</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">ENTRYPOINT</span><span class="w"> </span><span class="p">[</span><span class="s2">"/usr/local/bin/myservice"</span><span class="p">]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">FROM</span><span class="w"> </span><span class="s">debian:bookworm-slim</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">RUN</span><span class="w"> </span>apt-get<span class="w"> </span>update<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>--no-install-recommends<span class="w"> </span>ca-certificates<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>/var/lib/apt/lists/*<span class="w">           </span>#<span class="w"> </span>libssl3<span class="w"> </span><span class="k">for</span><span class="w"> </span>std.tls<span class="w"> </span>comes<span class="w"> </span>with<span class="w"> </span>it
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="k">COPY</span><span class="w"> </span>target/release/myservice<span class="w"> </span>/usr/local/bin/myservice
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="k">USER</span><span class="w"> </span><span class="s">65534</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="k">ENTRYPOINT</span><span class="w"> </span><span class="p">[</span><span class="s2">"/usr/local/bin/myservice"</span><span class="p">]</span>
 </code></pre></div>
 <p>The binary needs only the C library (and libssl if it uses <code>std.tls</code> or
 <code>std.http.client</code>). Its output is flushed line by line when it goes to a
