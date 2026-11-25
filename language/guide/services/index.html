@@ -3641,7 +3641,8 @@ Deliver signals into a channel and finish what you are doing:</p>
 so work a program started is always finished, never cut off. A service's
 accept loop never finishes, so a service ends with <code>exit(code)</code>, which
 flushes output and cancels every task and then <code>main</code>. Each unwinds from
-where it waits (a channel, a sleep, a socket, a child process, a <code>join</code>),
+where it waits (a channel, a sleep, a socket, a child process, a <code>join</code>,
+a lock or a semaphore),
 running its <code>defer</code> and <code>finally</code> blocks, so a <code>defer</code> can close a file or
 say goodbye to a broker. The program ends once the tasks have stopped,
 after at most 1 s. A task that never waits can't be cancelled: it is left
