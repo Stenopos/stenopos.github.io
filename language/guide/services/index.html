@@ -3640,13 +3640,20 @@ Deliver signals into a channel and finish what you are doing:</p>
 <p>Then end with <code>exit(0)</code>. Returning from <code>main</code> <strong>waits for every task</strong>,
 so work a program started is always finished, never cut off. A service's
 accept loop never finishes, so a service ends with <code>exit(code)</code>, which
-flushes output and stops the tasks: each worker gets up to 1 s to reach a
-point where it can stop. If a program does return from <code>main</code>
-and is still waiting after 3 s, it says so on stderr, with the way out.</p>
+flushes output and cancels every task and then <code>main</code>. Each unwinds from
+where it waits (a channel, a sleep, a socket, a child process, a <code>join</code>),
+running its <code>defer</code> and <code>finally</code> blocks, so a <code>defer</code> can close a file or
+say goodbye to a broker. The program ends once the tasks have stopped,
+after at most 1 s. A task that never waits can't be cancelled: it is left
+running when the program ends, with a note on stderr. Called from a task,
+<code>exit</code> wakes <code>main</code> the same way. An uncaught exception ends the program
+like <code>exit(70)</code>. If a program does return from <code>main</code> and is still
+waiting after 3 s, it says so on stderr, with the way out.</p>
 <p><code>exit_grace(ms)</code> sets a limit for that wait: past it, the program says
-which wait ran out and exits with 124. A batch job leaves it unset, so its
-work always finishes; a service might set <code>exit_grace(25000)</code>, inside
-Kubernetes's 30 s.</p>
+which wait ran out and exits with 124, cleaning up as <code>exit</code> does. It is
+also how long <code>exit</code> waits for the tasks to stop. A batch job leaves it
+unset, so its work always finishes; a service might set
+<code>exit_grace(25000)</code>, inside Kubernetes's 30 s.</p>
 <h2 id="files-and-logs">Files and logs<a class="headerlink" href="#files-and-logs" title="Permanent link">&para;</a></h2>
 <p><code>std.fs</code> does what a shell would, without a shell: <code>read</code> (null when the
 file is missing), <code>write_atomic</code> (a reader never sees half a file),
